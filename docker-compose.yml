@@ -1,0 +1,99 @@
+version: '3.8'
+
+services:
+  # PostgreSQL Database
+  postgres:
+    image: postgres:15
+    container_name: bendenotvar_db
+    environment:
+      POSTGRES_DB: bendenotvar
+      POSTGRES_USER: bendenotvar_user
+      POSTGRES_PASSWORD: bendenotvar_password
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+      - ./init.sql:/docker-entrypoint-initdb.d/init.sql
+    ports:
+      - "5432:5432"
+    networks:
+      - bendenotvar_network
+
+  # Redis for caching (optional)
+  redis:
+    image: redis:7-alpine
+    container_name: bendenotvar_redis
+    ports:
+      - "6379:6379"
+    networks:
+      - bendenotvar_network
+
+  # Backend API
+  backend:
+    build:
+      context: ./server
+      dockerfile: Dockerfile
+    container_name: bendenotvar_backend
+    environment:
+      NODE_ENV: production
+      DATABASE_URL: postgresql://bendenotvar_user:bendenotvar_password@postgres:5432/bendenotvar
+      JWT_SECRET: your-super-secret-jwt-key-here
+      JWT_EXPIRES_IN: 7d
+      EMAIL_HOST: smtp.gmail.com
+      EMAIL_PORT: 587
+      EMAIL_USER: your-email@gmail.com
+      EMAIL_PASS: your-app-password
+      EMAIL_FROM: bendenotvar <noreply@bendenotvar.com>
+      PORT: 5000
+      UPLOAD_PATH: /app/uploads
+      MAX_FILE_SIZE: 10485760
+      CLIENT_URL: http://localhost:3000
+      ALLOWED_EMAIL_DOMAINS: "@ogr.uludag.edu.tr,@uludag.edu.tr"
+    volumes:
+      - uploads_data:/app/uploads
+    ports:
+      - "5000:5000"
+    depends_on:
+      - postgres
+      - redis
+    networks:
+      - bendenotvar_network
+
+  # Frontend
+  frontend:
+    build:
+      context: ./client
+      dockerfile: Dockerfile
+    container_name: bendenotvar_frontend
+    environment:
+      REACT_APP_API_URL: http://localhost:5000/api
+      REACT_APP_SOCKET_URL: http://localhost:5000
+    ports:
+      - "3000:3000"
+    depends_on:
+      - backend
+    networks:
+      - bendenotvar_network
+
+  # Nginx Reverse Proxy
+  nginx:
+    image: nginx:alpine
+    container_name: bendenotvar_nginx
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - ./nginx.conf:/etc/nginx/nginx.conf
+      - ./ssl:/etc/nginx/ssl
+    depends_on:
+      - frontend
+      - backend
+    networks:
+      - bendenotvar_network
+
+volumes:
+  postgres_data:
+  uploads_data:
+
+networks:
+  bendenotvar_network:
+    driver: bridge
+

@@ -1,0 +1,120 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id          String   @id @default(cuid())
+  email       String   @unique
+  password    String
+  firstName   String
+  lastName    String
+  department  String?
+  faculty     String?
+  isVerified  Boolean  @default(false)
+  role        String   @default("USER") // USER, ADMIN
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  // Relations
+  ads         Ad[]
+  favorites   Favorite[]
+  conversationsStarted Conversation[] @relation("ConversationStarter")
+  conversationsReceived Conversation[] @relation("ConversationRecipient")
+  messages    Message[]
+
+  @@map("users")
+}
+
+model Category {
+  id          String   @id @default(cuid())
+  name        String   @unique
+  description String?
+  createdAt   DateTime @default(now())
+
+  // Relations
+  ads         Ad[]
+
+  @@map("categories")
+}
+
+model Ad {
+  id            String     @id @default(cuid())
+  title         String
+  description   String
+  category      String     // Not, Kitap, Ekipman, PDF, Proje, Acil
+  shareType     String   // BORROW (Ödünç), PERMANENT (Kalıcı), DIGITAL (Dijital)
+  status        String   @default("ACTIVE") // ACTIVE, INACTIVE, DELETED
+  fileUrl       String?
+  locationDetails String?
+  whatsappLink  String?
+  createdAt     DateTime   @default(now())
+  updatedAt     DateTime   @updatedAt
+
+  // Relations
+  userId        String
+  user          User       @relation(fields: [userId], references: [id], onDelete: Cascade)
+  categoryId    String?
+  categoryRef   Category?  @relation(fields: [categoryId], references: [id])
+  favorites     Favorite[]
+  conversations Conversation[]
+
+  @@map("ads")
+}
+
+model Favorite {
+  id        String   @id @default(cuid())
+  createdAt DateTime @default(now())
+
+  // Relations
+  userId    String
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  adId      String
+  ad        Ad       @relation(fields: [adId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, adId])
+  @@map("favorites")
+}
+
+model Conversation {
+  id              String   @id @default(cuid())
+  lastMessageTime DateTime @default(now())
+  status          String   @default("ACTIVE") // ACTIVE, ARCHIVED, BLOCKED
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+
+  // Relations
+  adId            String
+  ad              Ad       @relation(fields: [adId], references: [id], onDelete: Cascade)
+  starterId       String
+  starter         User     @relation("ConversationStarter", fields: [starterId], references: [id], onDelete: Cascade)
+  recipientId     String
+  recipient       User     @relation("ConversationRecipient", fields: [recipientId], references: [id], onDelete: Cascade)
+  messages        Message[]
+
+  @@unique([adId, starterId, recipientId])
+  @@map("conversations")
+}
+
+model Message {
+  id        String   @id @default(cuid())
+  content   String
+  isRead    Boolean  @default(false)
+  createdAt DateTime @default(now())
+
+  // Relations
+  conversationId String
+  conversation   Conversation @relation(fields: [conversationId], references: [id], onDelete: Cascade)
+  senderId       String
+  sender         User         @relation(fields: [senderId], references: [id], onDelete: Cascade)
+
+  @@map("messages")
+}
+
