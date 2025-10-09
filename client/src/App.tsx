@@ -14,6 +14,7 @@ import CreateAd from './pages/Ads/CreateAd';
 import Profile from './pages/Profile/Profile';
 import Messages from './pages/Messages/Messages';
 import Favorites from './pages/Favorites/Favorites';
+import MyAds from './pages/Ads/MyAds';
 import ProtectedRoute from './components/ProtectedRoute';
 import ToastContainer from './components/Toast/ToastContainer';
 
@@ -52,6 +53,11 @@ function App() {
             <Route path="/favorites" element={
               <ProtectedRoute>
                 <Layout><Favorites /></Layout>
+              </ProtectedRoute>
+            } />
+            <Route path="/my-ads" element={
+              <ProtectedRoute>
+                <Layout><MyAds /></Layout>
               </ProtectedRoute>
             } />
           </Routes>

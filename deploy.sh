@@ -114,3 +114,4 @@ echo -e "${GREEN}📊 Logs: docker-compose logs -f${NC}"
 echo -e "${GREEN}🔄 Restart: docker-compose restart${NC}"
 echo -e "${GREEN}🛑 Stop: docker-compose down${NC}"
 
+

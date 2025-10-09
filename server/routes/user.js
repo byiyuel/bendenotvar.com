@@ -353,4 +353,68 @@ router.delete('/account', async (req, res) => {
   }
 });
 
+// @route   GET /api/user/ads
+// @desc    Get user's ads
+// @access  Private
+router.get('/ads', async (req, res) => {
+  try {
+    const { page = 1, limit = 12, status } = req.query;
+    const skip = (parseInt(page) - 1) * parseInt(limit);
+
+    const where = {
+      userId: req.user.userId || req.user.id
+    };
+
+    console.log('User ID from token:', req.user.userId || req.user.id);
+    console.log('Where clause:', where);
+
+    if (status) {
+      where.status = status;
+    }
+
+    const [ads, total] = await Promise.all([
+      prisma.ad.findMany({
+        where,
+        include: {
+          user: {
+            select: {
+              id: true,
+              firstName: true,
+              lastName: true,
+              email: true,
+              faculty: true,
+              department: true
+            }
+          }
+        },
+        orderBy: {
+          createdAt: 'desc'
+        },
+        skip,
+        take: parseInt(limit)
+      }),
+      prisma.ad.count({ where })
+    ]);
+
+    console.log('Found ads:', ads.length);
+    console.log('Total ads:', total);
+
+    const pages = Math.ceil(total / parseInt(limit));
+
+    res.json({
+      data: ads,
+      pagination: {
+        page: parseInt(page),
+        limit: parseInt(limit),
+        total,
+        pages
+      }
+    });
+  } catch (error) {
+    console.error('Get user ads error:', error);
+    res.status(500).json({ message: 'Sunucu hatası' });
+  }
+});
+
 module.exports = router;
+

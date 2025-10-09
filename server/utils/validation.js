@@ -35,7 +35,7 @@ const validateMessage = [
     .withMessage('Mesaj 1-500 karakter arasında olmalıdır'),
   body('conversationId')
     .optional()
-    .isUUID()
+    .isLength({ min: 1, max: 50 })
     .withMessage('Geçerli bir konuşma ID giriniz'),
   body('adId')
     .optional()
@@ -86,6 +86,7 @@ const validateEmail = [
 const handleValidationErrors = (req, res, next) => {
   const errors = validationResult(req);
   if (!errors.isEmpty()) {
+    console.log('Validation errors:', errors.array());
     return res.status(400).json({
       message: 'Giriş bilgilerinde hata var',
       errors: errors.array()
@@ -148,3 +149,4 @@ module.exports = {
   validatePagination,
   validateSort
 };
+

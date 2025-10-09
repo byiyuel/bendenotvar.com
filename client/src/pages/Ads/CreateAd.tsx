@@ -3,25 +3,22 @@ import { useNavigate } from 'react-router-dom';
 import { useForm } from 'react-hook-form';
 import { adsAPI } from '../../services/api';
 import { AdForm } from '../../types';
+import { useToast } from '../../contexts/ToastContext';
 import { 
-  DocumentTextIcon, 
-  BookOpenIcon, 
-  WrenchScrewdriverIcon,
   DocumentIcon,
-  LightBulbIcon,
-  ExclamationTriangleIcon,
   PhotoIcon,
   XMarkIcon
 } from '@heroicons/react/24/outline';
 
 const CreateAd: React.FC = () => {
   const navigate = useNavigate();
+  const { showSuccess, showError } = useToast();
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
   const [filePreview, setFilePreview] = useState<string | null>(null);
 
-  const { register, handleSubmit, formState: { errors }, setValue, watch } = useForm<AdForm>();
+  const { register, handleSubmit, formState: { errors }, watch } = useForm<AdForm>();
   const shareType = watch('shareType');
 
   const onSubmit = async (data: AdForm) => {
@@ -48,9 +45,12 @@ const CreateAd: React.FC = () => {
       }
 
       await adsAPI.createAd(formData);
-      navigate('/ads');
+      showSuccess('İlan başarıyla oluşturuldu!');
+      navigate('/my-ads');
     } catch (err: any) {
-      setError(err.response?.data?.message || 'İlan oluşturulurken hata oluştu');
+      const errorMessage = err.response?.data?.message || 'İlan oluşturulurken hata oluştu';
+      setError(errorMessage);
+      showError('İlan oluşturulamadı', errorMessage);
     } finally {
       setLoading(false);
     }
@@ -79,24 +79,6 @@ const CreateAd: React.FC = () => {
     setFilePreview(null);
   };
 
-  const getCategoryIcon = (category: string) => {
-    switch (category) {
-      case 'Not':
-        return <DocumentTextIcon className="h-5 w-5" />;
-      case 'Kitap':
-        return <BookOpenIcon className="h-5 w-5" />;
-      case 'Ekipman':
-        return <WrenchScrewdriverIcon className="h-5 w-5" />;
-      case 'PDF':
-        return <DocumentIcon className="h-5 w-5" />;
-      case 'Proje':
-        return <LightBulbIcon className="h-5 w-5" />;
-      case 'Acil':
-        return <ExclamationTriangleIcon className="h-5 w-5" />;
-      default:
-        return <DocumentTextIcon className="h-5 w-5" />;
-    }
-  };
 
   return (
     <div className="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
@@ -217,7 +199,7 @@ const CreateAd: React.FC = () => {
           {/* Location Details */}
           {shareType === 'BORROW' && (
             <div className="mb-6">
-              <label htmlFor="locationDetails" className="block text-sm font-medium text-gray-700 mb-2">
+            <label htmlFor="locationDetails" className="block text-sm font-medium text-gray-700 mb-2">
                 Teslim Konumu
               </label>
               <input
@@ -347,4 +329,5 @@ const CreateAd: React.FC = () => {
 };
 
 export default CreateAd;
+
 

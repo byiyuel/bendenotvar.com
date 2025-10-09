@@ -90,6 +90,16 @@ export interface PaginationResponse<T> {
   };
 }
 
+export interface UserAdsResponse {
+  ads: Ad[];
+  pagination: {
+    page: number;
+    limit: number;
+    total: number;
+    pages: number;
+  };
+}
+
 export interface LoginForm {
   email: string;
   password: string;

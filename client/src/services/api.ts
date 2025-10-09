@@ -8,10 +8,9 @@ import {
   Favorite, 
   LoginForm, 
   RegisterForm, 
-  AdForm, 
   MessageForm,
   FilterOptions,
-  PaginationResponse 
+  PaginationResponse
 } from '../types';
 
 const API_BASE_URL = process.env.REACT_APP_API_URL || 'http://localhost:5000/api';
@@ -147,6 +146,9 @@ export const messagesAPI = {
   
   getConversation: (id: string): Promise<AxiosResponse<Conversation>> =>
     api.get(`/messages/conversations/${id}`),
+  
+  createConversation: (adId: string, recipientId: string): Promise<AxiosResponse<Conversation>> =>
+    api.post('/messages/conversations', { adId, recipientId }),
   
   getMessages: (conversationId: string, params?: { page?: number; limit?: number }): Promise<AxiosResponse<PaginationResponse<Message>>> =>
     api.get(`/messages/conversations/${conversationId}/messages`, { params }),

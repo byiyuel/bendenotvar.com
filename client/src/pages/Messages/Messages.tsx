@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect, useRef, useCallback } from 'react';
 import { useSocket } from '../../contexts/SocketContext';
 import { messagesAPI } from '../../services/api';
 import { Conversation, Message, MessageForm } from '../../types';
@@ -25,56 +25,32 @@ const Messages: React.FC = () => {
   const [sending, setSending] = useState(false);
   const messagesEndRef = useRef<HTMLDivElement>(null);
 
-  useEffect(() => {
-    fetchConversations();
-  }, []);
-
-  useEffect(() => {
-    if (selectedConversation) {
-      fetchMessages(selectedConversation.id);
-    }
-  }, [selectedConversation]);
-
-  useEffect(() => {
-    scrollToBottom();
-  }, [messages]);
-
-  useEffect(() => {
-    if (socket) {
-      socket.on('new_message', handleNewMessage);
-      socket.on('message_read', handleMessageRead);
-
-      return () => {
-        socket.off('new_message');
-        socket.off('message_read');
-      };
-    }
-  }, [socket, selectedConversation]);
-
-  const fetchConversations = async () => {
+  const fetchConversations = useCallback(async () => {
     try {
       const response = await messagesAPI.getConversations();
-      setConversations(response.data);
+      setConversations(response.data || []);
     } catch (error) {
       console.error('Error fetching conversations:', error);
       showError('Hata', 'Konuşmalar yüklenirken bir hata oluştu');
+      setConversations([]);
     } finally {
       setLoading(false);
     }
-  };
+  }, [showError]);
 
-  const fetchMessages = async (conversationId: string) => {
+  const fetchMessages = useCallback(async (conversationId: string) => {
     try {
       const response = await messagesAPI.getMessages(conversationId);
-      setMessages(response.data.data);
+      setMessages(response.data.data || []);
       
       // Mark messages as read - using the correct API method
       // For now, we'll skip this as the API might need adjustment
     } catch (error) {
       console.error('Error fetching messages:', error);
       showError('Hata', 'Mesajlar yüklenirken bir hata oluştu');
+      setMessages([]);
     }
-  };
+  }, [showError]);
 
   const sendMessage = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -98,15 +74,18 @@ const Messages: React.FC = () => {
           message: response.data.messageData
         });
       }
-    } catch (error) {
+    } catch (error: any) {
       console.error('Error sending message:', error);
-      showError('Hata', 'Mesaj gönderilirken bir hata oluştu');
+      console.error('Error response:', error.response?.data);
+      console.error('Validation errors:', error.response?.data?.errors);
+      const errorMessage = error.response?.data?.message || 'Mesaj gönderilirken bir hata oluştu';
+      showError('Hata', errorMessage);
     } finally {
       setSending(false);
     }
   };
 
-  const handleNewMessage = (data: { conversationId: string; message: Message }) => {
+  const handleNewMessage = useCallback((data: { conversationId: string; message: Message }) => {
     if (selectedConversation && data.conversationId === selectedConversation.id) {
       setMessages(prev => [...prev, data.message]);
     }
@@ -119,9 +98,9 @@ const Messages: React.FC = () => {
           : conv
       )
     );
-  };
+  }, [selectedConversation]);
 
-  const handleMessageRead = (data: { conversationId: string; messageIds: string[] }) => {
+  const handleMessageRead = useCallback((data: { conversationId: string; messageIds: string[] }) => {
     if (selectedConversation && data.conversationId === selectedConversation.id) {
       setMessages(prev =>
         prev.map(message =>
@@ -129,7 +108,33 @@ const Messages: React.FC = () => {
         )
       );
     }
-  };
+  }, [selectedConversation]);
+
+  useEffect(() => {
+    fetchConversations();
+  }, [fetchConversations]);
+
+  useEffect(() => {
+    if (selectedConversation) {
+      fetchMessages(selectedConversation.id);
+    }
+  }, [selectedConversation, fetchMessages]);
+
+  useEffect(() => {
+    scrollToBottom();
+  }, [messages]);
+
+  useEffect(() => {
+    if (socket) {
+      socket.on('new_message', handleNewMessage);
+      socket.on('message_read', handleMessageRead);
+
+      return () => {
+        socket.off('new_message');
+        socket.off('message_read');
+      };
+    }
+  }, [socket, selectedConversation, handleNewMessage, handleMessageRead]);
 
   const scrollToBottom = () => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
@@ -339,3 +344,4 @@ const Messages: React.FC = () => {
 };
 
 export default Messages;
+

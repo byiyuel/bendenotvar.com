@@ -224,7 +224,7 @@ const Ads: React.FC = () => {
             {ads && ads.map((ad) => (
               <div
                 key={ad.id}
-                className="bg-white rounded-lg border border-gray-200 hover:shadow-lg transition-shadow duration-200"
+                className="bg-white rounded-lg border border-gray-200 hover:shadow-md hover:border-primary-200 transition-all duration-200"
               >
                 <div className="p-6">
                   {/* Category Badge */}
@@ -330,3 +330,4 @@ const Ads: React.FC = () => {
 };
 
 export default Ads;
+

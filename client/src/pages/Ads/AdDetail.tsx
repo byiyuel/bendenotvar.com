@@ -1,8 +1,9 @@
-import React, { useState, useEffect } from 'react';
-import { useParams, Link } from 'react-router-dom';
-import { adsAPI, favoritesAPI } from '../../services/api';
+import React, { useState, useEffect, useCallback } from 'react';
+import { useParams, Link, useNavigate } from 'react-router-dom';
+import { adsAPI, favoritesAPI, messagesAPI } from '../../services/api';
 import { Ad } from '../../types';
 import { useAuth } from '../../contexts/AuthContext';
+import { useToast } from '../../contexts/ToastContext';
 import { 
   DocumentTextIcon, 
   BookOpenIcon, 
@@ -12,7 +13,6 @@ import {
   ExclamationTriangleIcon,
   HeartIcon,
   ChatBubbleLeftRightIcon,
-  UserIcon,
   CalendarIcon,
   MapPinIcon,
   LinkIcon
@@ -22,24 +22,15 @@ import { HeartIcon as HeartSolidIcon } from '@heroicons/react/24/solid';
 const AdDetail: React.FC = () => {
   const { id } = useParams<{ id: string }>();
   const { user, isAuthenticated } = useAuth();
+  const navigate = useNavigate();
+  const { showSuccess, showError } = useToast();
   const [ad, setAd] = useState<Ad | null>(null);
   const [loading, setLoading] = useState(true);
   const [isFavorite, setIsFavorite] = useState(false);
   const [favoriteLoading, setFavoriteLoading] = useState(false);
+  const [messageLoading, setMessageLoading] = useState(false);
 
-  useEffect(() => {
-    if (id) {
-      fetchAd();
-    }
-  }, [id]);
-
-  useEffect(() => {
-    if (isAuthenticated && ad) {
-      checkFavoriteStatus();
-    }
-  }, [isAuthenticated, ad]);
-
-  const fetchAd = async () => {
+  const fetchAd = useCallback(async () => {
     try {
       const response = await adsAPI.getAd(id!);
       setAd(response.data);
@@ -48,16 +39,45 @@ const AdDetail: React.FC = () => {
     } finally {
       setLoading(false);
     }
-  };
+  }, [id]);
 
-  const checkFavoriteStatus = async () => {
+  const checkFavoriteStatus = useCallback(async () => {
     try {
       const response = await favoritesAPI.checkFavoriteStatus(id!);
       setIsFavorite(response.data.isFavorite);
     } catch (error) {
       console.error('Error checking favorite status:', error);
     }
-  };
+  }, [id]);
+
+  const handleSendMessage = useCallback(async () => {
+    if (!ad || !isAuthenticated) return;
+    
+    try {
+      setMessageLoading(true);
+      await messagesAPI.createConversation(ad.id, ad.user.id);
+      showSuccess('Başarılı', 'Mesaj sayfasına yönlendiriliyorsunuz...');
+      navigate('/messages');
+    } catch (error: any) {
+      console.error('Error creating conversation:', error);
+      const errorMessage = error.response?.data?.message || 'Mesaj gönderilirken hata oluştu';
+      showError('Hata', errorMessage);
+    } finally {
+      setMessageLoading(false);
+    }
+  }, [ad, isAuthenticated, navigate, showSuccess, showError]);
+
+  useEffect(() => {
+    if (id) {
+      fetchAd();
+    }
+  }, [id, fetchAd]);
+
+  useEffect(() => {
+    if (isAuthenticated && ad) {
+      checkFavoriteStatus();
+    }
+  }, [isAuthenticated, ad, checkFavoriteStatus]);
 
   const toggleFavorite = async () => {
     if (!isAuthenticated) return;
@@ -219,17 +239,28 @@ const AdDetail: React.FC = () => {
                   {formatDate(ad.createdAt)}
                 </span>
                 {isAuthenticated && user?.id !== ad.user.id && (
-                  <button
-                    onClick={toggleFavorite}
-                    disabled={favoriteLoading}
-                    className="p-2 rounded-full hover:bg-gray-100 transition-colors"
-                  >
-                    {isFavorite ? (
-                      <HeartSolidIcon className="h-5 w-5 text-red-500" />
-                    ) : (
-                      <HeartIcon className="h-5 w-5 text-gray-400" />
-                    )}
-                  </button>
+                  <>
+                    <button
+                      onClick={toggleFavorite}
+                      disabled={favoriteLoading}
+                      className="p-2 rounded-full hover:bg-gray-100 transition-colors"
+                      title="Favorilere ekle"
+                    >
+                      {isFavorite ? (
+                        <HeartSolidIcon className="h-5 w-5 text-red-500" />
+                      ) : (
+                        <HeartIcon className="h-5 w-5 text-gray-400" />
+                      )}
+                    </button>
+                    <button
+                      onClick={handleSendMessage}
+                      disabled={messageLoading}
+                      className="p-2 rounded-full hover:bg-gray-100 transition-colors"
+                      title="Mesaj gönder"
+                    >
+                      <ChatBubbleLeftRightIcon className="h-5 w-5 text-gray-400" />
+                    </button>
+                  </>
                 )}
               </div>
             </div>
@@ -359,4 +390,5 @@ const AdDetail: React.FC = () => {
 };
 
 export default AdDetail;
+
 

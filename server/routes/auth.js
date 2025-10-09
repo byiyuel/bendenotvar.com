@@ -4,6 +4,7 @@ const jwt = require('jsonwebtoken');
 const { PrismaClient } = require('@prisma/client');
 const { validationResult, body } = require('express-validator');
 const { sendVerificationEmail } = require('../utils/email');
+const { authenticateToken } = require('../middleware/auth');
 
 const router = express.Router();
 const prisma = new PrismaClient();
@@ -288,6 +289,37 @@ router.get('/verify/:token', async (req, res) => {
     res.status(400).json({
       message: 'Doğrulama bağlantısı geçersiz veya süresi dolmuş'
     });
+  }
+});
+
+// @route   GET /api/auth/verify-token
+// @desc    Verify JWT token
+// @access  Private
+router.get('/verify-token', authenticateToken, async (req, res) => {
+  try {
+    const user = await prisma.user.findUnique({
+      where: { id: req.user.userId || req.user.id },
+      select: {
+        id: true,
+        email: true,
+        firstName: true,
+        lastName: true,
+        isVerified: true,
+        role: true
+      }
+    });
+
+    if (!user) {
+      return res.status(404).json({ message: 'Kullanıcı bulunamadı' });
+    }
+
+    res.json({
+      valid: true,
+      user
+    });
+  } catch (error) {
+    console.error('Token verification error:', error);
+    res.status(500).json({ message: 'Sunucu hatası' });
   }
 });
 

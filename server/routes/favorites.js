@@ -130,7 +130,7 @@ router.get('/', async (req, res) => {
     ]);
 
     res.json({
-      favorites,
+      data: favorites,
       pagination: {
         page: parseInt(page),
         limit: parseInt(limit),
@@ -187,4 +187,5 @@ router.delete('/:adId', async (req, res) => {
 });
 
 module.exports = router;
+
 

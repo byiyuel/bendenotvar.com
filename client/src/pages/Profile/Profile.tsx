@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect, useRef, useCallback } from 'react';
 import { useForm } from 'react-hook-form';
 import { userAPI } from '../../services/api';
 import { User } from '../../types';
@@ -21,23 +21,18 @@ import {
 } from '@heroicons/react/24/outline';
 
 const Profile: React.FC = () => {
-  const { user: authUser, login } = useAuth();
+  const { user: authUser } = useAuth();
   const { showSuccess, showError } = useToast();
   const [user, setUser] = useState<User | null>(null);
   const [loading, setLoading] = useState(true);
   const [editing, setEditing] = useState(false);
   const [saving, setSaving] = useState(false);
-  const [profileImage, setProfileImage] = useState<File | null>(null);
   const [imagePreview, setImagePreview] = useState<string | null>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   const { register, handleSubmit, formState: { errors }, reset } = useForm<Partial<User>>();
 
-  useEffect(() => {
-    fetchProfile();
-  }, []);
-
-  const fetchProfile = async () => {
+  const fetchProfile = useCallback(async () => {
     try {
       const response = await userAPI.getProfile();
       setUser(response.data);
@@ -48,7 +43,11 @@ const Profile: React.FC = () => {
     } finally {
       setLoading(false);
     }
-  };
+  }, [reset, showError]);
+
+  useEffect(() => {
+    fetchProfile();
+  }, [fetchProfile]);
 
   const onSubmit = async (data: Partial<User>) => {
     setSaving(true);
@@ -64,7 +63,6 @@ const Profile: React.FC = () => {
       const updatedUser = response.data.user || response.data;
       setUser(updatedUser);
       setEditing(false);
-      setProfileImage(null);
       setImagePreview(null);
       
       showSuccess('Başarılı', 'Profil bilgileriniz güncellendi');
@@ -94,7 +92,6 @@ const Profile: React.FC = () => {
         return;
       }
 
-      setProfileImage(file);
       const reader = new FileReader();
       reader.onload = (e) => {
         setImagePreview(e.target?.result as string);
@@ -105,7 +102,6 @@ const Profile: React.FC = () => {
 
   const cancelEdit = () => {
     setEditing(false);
-    setProfileImage(null);
     setImagePreview(null);
     if (user) {
       reset(user);

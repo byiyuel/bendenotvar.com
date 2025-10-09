@@ -1,12 +1,11 @@
 import React, { useEffect, useState } from 'react';
-import { useParams, useNavigate, Link } from 'react-router-dom';
+import { useParams, Link } from 'react-router-dom';
 import { useToast } from '../../contexts/ToastContext';
 import api from '../../services/api';
 import LoadingSpinner from '../../components/Loading/LoadingSpinner';
 
 const EmailVerification: React.FC = () => {
   const { token } = useParams<{ token: string }>();
-  const navigate = useNavigate();
   const { showSuccess, showError } = useToast();
   const [loading, setLoading] = useState(true);
   const [verified, setVerified] = useState(false);
@@ -21,7 +20,7 @@ const EmailVerification: React.FC = () => {
       }
 
       try {
-        const response = await api.get(`/auth/verify/${token}`);
+        await api.get(`/auth/verify/${token}`);
         setVerified(true);
         showSuccess('E-posta doğrulandı!', 'Artık giriş yapabilirsiniz.');
       } catch (err: any) {

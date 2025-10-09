@@ -105,7 +105,7 @@ router.get('/', async (req, res) => {
     ]);
 
     res.json({
-      ads,
+      data: ads,
       pagination: {
         page: parseInt(page),
         limit: parseInt(limit),
@@ -399,4 +399,5 @@ router.get('/faculties/list', async (req, res) => {
 });
 
 module.exports = router;
+
 

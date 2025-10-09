@@ -1,15 +1,12 @@
 import React, { useState } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
+import { Link } from 'react-router-dom';
 import { useForm } from 'react-hook-form';
-import { useAuth } from '../../contexts/AuthContext';
 import { useToast } from '../../contexts/ToastContext';
 import { RegisterForm } from '../../types';
 import api from '../../services/api';
 
 const Register: React.FC = () => {
-  const { register: registerUser } = useAuth();
   const { showSuccess, showError } = useToast();
-  const navigate = useNavigate();
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
   const [success, setSuccess] = useState(false);
@@ -24,7 +21,7 @@ const Register: React.FC = () => {
     setError('');
 
     try {
-      const response = await api.post('/auth/register', data);
+      await api.post('/auth/register', data);
       setSuccess(true);
       setUserEmail(data.email);
       showSuccess('Hesabınız oluşturuldu! E-posta adresinizi kontrol edin.');
@@ -271,4 +268,5 @@ const Register: React.FC = () => {
 };
 
 export default Register;
+
 

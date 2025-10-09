@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { Link } from 'react-router-dom';
 import { favoritesAPI } from '../../services/api';
 import { Favorite } from '../../types';
@@ -31,11 +31,7 @@ const Favorites: React.FC = () => {
 
   const { showSuccess, showError } = useToast();
 
-  useEffect(() => {
-    fetchFavorites();
-  }, []);
-
-  const fetchFavorites = async () => {
+  const fetchFavorites = useCallback(async () => {
     try {
       setLoading(true);
       const response = await favoritesAPI.getFavorites({ page: pagination.page, limit: pagination.limit });
@@ -47,7 +43,11 @@ const Favorites: React.FC = () => {
     } finally {
       setLoading(false);
     }
-  };
+  }, [pagination.page, pagination.limit, showError]);
+
+  useEffect(() => {
+    fetchFavorites();
+  }, [fetchFavorites]);
 
   const handleRemoveFavorite = async (adId: string) => {
     setRemovingId(adId);
@@ -328,3 +328,4 @@ const Favorites: React.FC = () => {
 };
 
 export default Favorites;
+

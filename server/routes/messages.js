@@ -2,18 +2,151 @@ const express = require('express');
 const { PrismaClient } = require('@prisma/client');
 const { validateMessage, handleValidationErrors } = require('../utils/validation');
 const { sendMessageNotification } = require('../utils/email');
+const { authenticateToken } = require('../middleware/auth');
 
 const router = express.Router();
 const prisma = new PrismaClient();
 
+// Konuşma oluştur veya mevcut konuşmayı getir
+router.post('/conversations', authenticateToken, async (req, res) => {
+  try {
+    const { adId, recipientId } = req.body;
+
+    if (!adId || !recipientId) {
+      return res.status(400).json({
+        message: 'Ad ID ve recipient ID gerekli'
+      });
+    }
+
+    // İlan var mı kontrol et
+    const ad = await prisma.ad.findUnique({
+      where: { id: adId },
+      include: {
+        user: {
+          select: {
+            id: true,
+            firstName: true,
+            lastName: true,
+            email: true
+          }
+        }
+      }
+    });
+
+    if (!ad) {
+      return res.status(404).json({
+        message: 'İlan bulunamadı'
+      });
+    }
+
+    // Kendi ilanına mesaj atamaz
+    const userId = req.user.userId || req.user.id;
+    if (ad.userId === userId) {
+      return res.status(400).json({
+        message: 'Kendi ilanınıza mesaj atamazsınız'
+      });
+    }
+
+    // Mevcut konuşma var mı kontrol et
+    let conversation = await prisma.conversation.findFirst({
+      where: {
+        adId: adId,
+        OR: [
+          {
+            starterId: userId,
+            recipientId: recipientId
+          },
+          {
+            starterId: recipientId,
+            recipientId: userId
+          }
+        ]
+      },
+      include: {
+        ad: {
+          select: {
+            id: true,
+            title: true,
+            category: true
+          }
+        },
+        starter: {
+          select: {
+            id: true,
+            firstName: true,
+            lastName: true,
+            department: true,
+            faculty: true
+          }
+        },
+        recipient: {
+          select: {
+            id: true,
+            firstName: true,
+            lastName: true,
+            department: true,
+            faculty: true
+          }
+        }
+      }
+    });
+
+    // Konuşma yoksa oluştur
+    if (!conversation) {
+      conversation = await prisma.conversation.create({
+        data: {
+          adId: adId,
+          starterId: req.user.id,
+          recipientId: recipientId,
+          lastMessageTime: new Date()
+        },
+        include: {
+          ad: {
+            select: {
+              id: true,
+              title: true,
+              category: true
+            }
+          },
+          starter: {
+            select: {
+              id: true,
+              firstName: true,
+              lastName: true,
+              department: true,
+              faculty: true
+            }
+          },
+          recipient: {
+            select: {
+              id: true,
+              firstName: true,
+              lastName: true,
+              department: true,
+              faculty: true
+            }
+          }
+        }
+      });
+    }
+
+    res.json(conversation);
+  } catch (error) {
+    console.error('Create conversation error:', error);
+    res.status(500).json({
+      message: 'Konuşma oluşturulurken hata oluştu'
+    });
+  }
+});
+
 // Konuşmaları getir
-router.get('/conversations', async (req, res) => {
+router.get('/conversations', authenticateToken, async (req, res) => {
   try {
     const conversations = await prisma.conversation.findMany({
       where: {
         OR: [
-          { starterId: req.user.id },
-          { recipientId: req.user.id }
+          { starterId: req.user.userId || req.user.id },
+          { recipientId: req.user.userId || req.user.id }
         ]
       },
       orderBy: { lastMessageTime: 'desc' },
@@ -71,7 +204,7 @@ router.get('/conversations', async (req, res) => {
 });
 
 // Konuşma detayını getir
-router.get('/conversations/:id', async (req, res) => {
+router.get('/conversations/:id', authenticateToken, async (req, res) => {
   try {
     const { id } = req.params;
 
@@ -136,7 +269,7 @@ router.get('/conversations/:id', async (req, res) => {
 });
 
 // Konuşmadaki mesajları getir
-router.get('/conversations/:id/messages', async (req, res) => {
+router.get('/conversations/:id/messages', authenticateToken, async (req, res) => {
   try {
     const { id } = req.params;
     const { page = 1, limit = 50 } = req.query;
@@ -207,9 +340,26 @@ router.get('/conversations/:id/messages', async (req, res) => {
 });
 
 // Yeni mesaj gönder
-router.post('/send', validateMessage, handleValidationErrors, async (req, res) => {
+router.post('/send', authenticateToken, validateMessage, handleValidationErrors, async (req, res) => {
   try {
     const { content, conversationId, adId } = req.body;
+    console.log('Send message request:', { content, conversationId, adId, user: req.user });
+    
+    if (!req.user) {
+      console.log('No user found in request');
+      return res.status(401).json({
+        message: 'Kimlik doğrulama gerekli'
+      });
+    }
+
+    if (!conversationId && !adId) {
+      console.log('Neither conversationId nor adId provided');
+      return res.status(400).json({
+        message: 'Konuşma ID veya İlan ID gereklidir'
+      });
+    }
+
+    const userId = req.user.userId || req.user.id;
 
     let conversation;
 
@@ -231,7 +381,8 @@ router.post('/send', validateMessage, handleValidationErrors, async (req, res) =
       }
 
       // Kullanıcının bu konuşmaya erişim yetkisi var mı kontrol et
-      if (conversation.starterId !== req.user.id && conversation.recipientId !== req.user.id) {
+      const userId = req.user.userId || req.user.id;
+      if (conversation.starterId !== userId && conversation.recipientId !== userId) {
         return res.status(403).json({
           message: 'Bu konuşmaya mesaj gönderme yetkiniz yok'
         });
@@ -249,7 +400,7 @@ router.post('/send', validateMessage, handleValidationErrors, async (req, res) =
         });
       }
 
-      if (ad.userId === req.user.id) {
+      if (ad.userId === userId) {
         return res.status(400).json({
           message: 'Kendi ilanınıza mesaj gönderemezsiniz'
         });
@@ -259,7 +410,7 @@ router.post('/send', validateMessage, handleValidationErrors, async (req, res) =
       conversation = await prisma.conversation.findFirst({
         where: {
           adId: adId,
-          starterId: req.user.id,
+          starterId: userId,
           recipientId: ad.userId
         },
         include: {
@@ -274,7 +425,7 @@ router.post('/send', validateMessage, handleValidationErrors, async (req, res) =
         conversation = await prisma.conversation.create({
           data: {
             adId: adId,
-            starterId: req.user.id,
+            starterId: userId,
             recipientId: ad.userId
           },
           include: {
@@ -295,7 +446,7 @@ router.post('/send', validateMessage, handleValidationErrors, async (req, res) =
       data: {
         content,
         conversationId: conversation.id,
-        senderId: req.user.id
+        senderId: userId
       },
       include: {
         sender: {
@@ -315,8 +466,8 @@ router.post('/send', validateMessage, handleValidationErrors, async (req, res) =
     });
 
     // Alıcıya email bildirimi gönder (kendi mesajı değilse)
-    if (conversation.starterId !== req.user.id && conversation.recipientId !== req.user.id) {
-      const recipient = conversation.starterId === req.user.id ? conversation.recipient : conversation.starter;
+    if (conversation.starterId !== userId && conversation.recipientId !== userId) {
+      const recipient = conversation.starterId === userId ? conversation.recipient : conversation.starter;
       await sendMessageNotification(
         recipient.email,
         `${req.user.firstName} ${req.user.lastName}`,
@@ -326,7 +477,7 @@ router.post('/send', validateMessage, handleValidationErrors, async (req, res) =
 
     res.status(201).json({
       message: 'Mesaj başarıyla gönderildi',
-      message,
+      messageData: message,
       conversation
     });
   } catch (error) {
@@ -386,7 +537,7 @@ router.patch('/messages/:id/read', async (req, res) => {
 });
 
 // Okunmamış mesaj sayısını getir
-router.get('/unread/count', async (req, res) => {
+router.get('/unread/count', authenticateToken, async (req, res) => {
   try {
     const unreadCount = await prisma.message.count({
       where: {
@@ -411,4 +562,5 @@ router.get('/unread/count', async (req, res) => {
 });
 
 module.exports = router;
+
 

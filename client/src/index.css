@@ -2,15 +2,65 @@
 @tailwind components;
 @tailwind utilities;
 
-@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Sora:wght@400;500;600;700&family=Inter:wght@300;400;500;600;700&display=swap');
 
 body {
   margin: 0;
-  font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen',
+  font-family: 'Sora', 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen',
     'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue',
     sans-serif;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+}
+
+/* Subtle site-wide background pattern */
+body::before {
+  content: '';
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  background-image:
+    radial-gradient(circle at 10% 10%, rgba(16,185,129,0.08) 0, transparent 50%),
+    radial-gradient(circle at 90% 20%, rgba(16,185,129,0.06) 0, transparent 45%),
+    radial-gradient(circle at 20% 80%, rgba(16,185,129,0.05) 0, transparent 40%);
+  z-index: 0;
+}
+
+/* (dark mode removed) */
+
+#root, body, html {
+  min-height: 100%;
+  position: relative;
+  z-index: 1;
+}
+
+/* iOS 16/17+ style helpers */
+.glass {
+  background: rgba(255, 255, 255, 0.7);
+  backdrop-filter: saturate(180%) blur(16px);
+  -webkit-backdrop-filter: saturate(180%) blur(16px);
+}
+
+.btn-ios-primary {
+  background: linear-gradient(180deg, #34d399, #10b981);
+  color: white;
+  box-shadow: 0 6px 20px rgba(16, 185, 129, 0.25), inset 0 1px 0 rgba(255,255,255,0.4);
+  transition: transform .08s ease, box-shadow .2s ease;
+}
+.btn-ios-primary:hover { transform: translateY(-1px); }
+.btn-ios-primary:active { transform: translateY(0); box-shadow: 0 3px 12px rgba(16, 185, 129, 0.25), inset 0 1px 0 rgba(255,255,255,0.3); }
+
+.card-ios {
+  background: #fff;
+  border-radius: 16px;
+  border: 1px solid rgba(0,0,0,0.06);
+  box-shadow: 0 8px 24px rgba(0,0,0,0.06);
+}
+
+.chip-ios {
+  border-radius: 9999px;
+  background: #f4f6f8;
+  border: 1px solid rgba(0,0,0,0.06);
 }
 
 code {
