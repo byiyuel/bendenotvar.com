@@ -16,10 +16,10 @@ const LoadingOverlay: React.FC<LoadingOverlayProps> = ({
     <div className="relative">
       {children}
       {isLoading && (
-        <div className="absolute inset-0 bg-white bg-opacity-75 flex items-center justify-center z-50">
+        <div className="absolute inset-0 bg-white bg-opacity-75 flex items-center justify-center z-50 dark:bg-secondary-900 dark:bg-opacity-70">
           <div className="text-center">
             <LoadingSpinner size="lg" />
-            <p className="mt-2 text-gray-600 font-medium">{text}</p>
+            <p className="mt-2 text-gray-600 font-medium dark:text-gray-300">{text}</p>
           </div>
         </div>
       )}

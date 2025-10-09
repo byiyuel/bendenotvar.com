@@ -1,31 +1,34 @@
-import React from 'react';
+import React, { Suspense, lazy } from 'react';
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import { AuthProvider } from './contexts/AuthContext';
 import { SocketProvider } from './contexts/SocketContext';
 import { ToastProvider } from './contexts/ToastContext';
 import Layout from './components/Layout/Layout';
-import Home from './pages/Home';
-import Login from './pages/Auth/Login';
-import Register from './pages/Auth/Register';
-import EmailVerification from './pages/Auth/EmailVerification';
-import Ads from './pages/Ads/Ads';
-import AdDetail from './pages/Ads/AdDetail';
-import CreateAd from './pages/Ads/CreateAd';
-import Profile from './pages/Profile/Profile';
-import Messages from './pages/Messages/Messages';
-import Favorites from './pages/Favorites/Favorites';
-import MyAds from './pages/Ads/MyAds';
+import { ThemeProvider } from './contexts/ThemeContext';
 import ProtectedRoute from './components/ProtectedRoute';
 import ToastContainer from './components/Toast/ToastContainer';
+const Home = lazy(() => import('./pages/Home'));
+const Login = lazy(() => import('./pages/Auth/Login'));
+const Register = lazy(() => import('./pages/Auth/Register'));
+const EmailVerification = lazy(() => import('./pages/Auth/EmailVerification'));
+const Ads = lazy(() => import('./pages/Ads/Ads'));
+const AdDetail = lazy(() => import('./pages/Ads/AdDetail'));
+const CreateAd = lazy(() => import('./pages/Ads/CreateAd'));
+const Profile = lazy(() => import('./pages/Profile/Profile'));
+const Messages = lazy(() => import('./pages/Messages/Messages'));
+const Favorites = lazy(() => import('./pages/Favorites/Favorites'));
+const MyAds = lazy(() => import('./pages/Ads/MyAds'));
 
 function App() {
   return (
     <ToastProvider>
       <AuthProvider>
         <SocketProvider>
-          <Router>
-            <ToastContainer />
-            <Routes>
+          <ThemeProvider>
+            <Router>
+              <ToastContainer />
+              <Suspense fallback={<div className="p-6 text-center"><span className="inline-block h-6 w-6 mr-2 align-middle animate-spin rounded-full border-2 border-primary-600 border-t-transparent"></span>Yükleniyor…</div>}>
+                <Routes>
             {/* Public Routes */}
             <Route path="/" element={<Layout><Home /></Layout>} />
             <Route path="/login" element={<Login />} />
@@ -60,10 +63,12 @@ function App() {
                 <Layout><MyAds /></Layout>
               </ProtectedRoute>
             } />
-          </Routes>
-        </Router>
-      </SocketProvider>
-    </AuthProvider>
+                </Routes>
+              </Suspense>
+            </Router>
+          </ThemeProvider>
+        </SocketProvider>
+      </AuthProvider>
     </ToastProvider>
   );
 }

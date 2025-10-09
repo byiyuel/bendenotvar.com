@@ -1,4 +1,5 @@
 const express = require('express');
+const path = require('path');
 const cors = require('cors');
 const helmet = require('helmet');
 const morgan = require('morgan');
@@ -103,6 +104,18 @@ app.get('/api/health', (req, res) => {
     environment: process.env.NODE_ENV 
   });
 });
+
+// Serve React build for non-API routes (SPA fallback)
+try {
+  const clientBuildPath = path.join(__dirname, '../client/build');
+  app.use(express.static(clientBuildPath));
+  app.get('*', (req, res, next) => {
+    if (req.path.startsWith('/api')) return next();
+    res.sendFile(path.join(clientBuildPath, 'index.html'));
+  });
+} catch (e) {
+  // no-op if build path is not present (e.g., dev mode)
+}
 
 
 // Error handling middleware

@@ -26,7 +26,13 @@ body::before {
   z-index: 0;
 }
 
-/* (dark mode removed) */
+/* Dark mode variant of background pattern */
+.dark body::before {
+  background-image:
+    radial-gradient(circle at 10% 10%, rgba(16,185,129,0.10) 0, transparent 50%),
+    radial-gradient(circle at 90% 20%, rgba(16,185,129,0.08) 0, transparent 45%),
+    radial-gradient(circle at 20% 80%, rgba(16,185,129,0.06) 0, transparent 40%);
+}
 
 #root, body, html {
   min-height: 100%;
@@ -57,10 +63,28 @@ body::before {
   box-shadow: 0 8px 24px rgba(0,0,0,0.06);
 }
 
+/* Dark variants for custom utility classes */
+.dark .card-ios {
+  background: #0f172a; /* secondary-900 */
+  border-color: rgba(255,255,255,0.08);
+  box-shadow: 0 8px 24px rgba(0,0,0,0.4);
+}
+
 .chip-ios {
   border-radius: 9999px;
   background: #f4f6f8;
   border: 1px solid rgba(0,0,0,0.06);
+}
+
+.dark .chip-ios {
+  background: #1e293b; /* secondary-800 */
+  border-color: rgba(255,255,255,0.08);
+}
+
+.dark .glass {
+  background: rgba(15, 23, 42, 0.6);
+  backdrop-filter: saturate(180%) blur(16px);
+  -webkit-backdrop-filter: saturate(180%) blur(16px);
 }
 
 code {

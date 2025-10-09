@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useCallback } from 'react';
+import DOMPurify from 'dompurify';
 import { useParams, Link, useNavigate } from 'react-router-dom';
 import { adsAPI, favoritesAPI, messagesAPI } from '../../services/api';
 import { Ad } from '../../types';
@@ -160,7 +161,7 @@ const AdDetail: React.FC = () => {
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         <div className="text-center">
           <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary-600 mx-auto"></div>
-          <p className="mt-4 text-gray-600">İlan yükleniyor...</p>
+          <p className="mt-4 text-gray-600 dark:text-gray-300">İlan yükleniyor...</p>
         </div>
       </div>
     );
@@ -171,8 +172,8 @@ const AdDetail: React.FC = () => {
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         <div className="text-center">
           <DocumentTextIcon className="mx-auto h-12 w-12 text-gray-400" />
-          <h3 className="mt-2 text-sm font-medium text-gray-900">İlan bulunamadı</h3>
-          <p className="mt-1 text-sm text-gray-500">
+          <h3 className="mt-2 text-sm font-medium text-gray-900 dark:text-gray-100">İlan bulunamadı</h3>
+          <p className="mt-1 text-sm text-gray-500 dark:text-gray-400">
             Aradığınız ilan mevcut değil veya silinmiş olabilir.
           </p>
           <div className="mt-6">
@@ -213,7 +214,7 @@ const AdDetail: React.FC = () => {
               <svg className="flex-shrink-0 h-5 w-5 text-gray-300" fill="currentColor" viewBox="0 0 20 20">
                 <path fillRule="evenodd" d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z" clipRule="evenodd" />
               </svg>
-              <span className="ml-4 text-gray-500">İlan Detayı</span>
+              <span className="ml-4 text-gray-500 dark:text-gray-400">İlan Detayı</span>
             </div>
           </li>
         </ol>
@@ -222,7 +223,7 @@ const AdDetail: React.FC = () => {
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
         {/* Main Content */}
         <div className="lg:col-span-2">
-          <div className="bg-white rounded-lg shadow-sm border p-6">
+          <div className="bg-white rounded-lg shadow-sm border p-6 dark:bg-secondary-900 dark:border-secondary-800">
             {/* Header */}
             <div className="flex items-start justify-between mb-6">
               <div className="flex items-center space-x-3">
@@ -235,7 +236,7 @@ const AdDetail: React.FC = () => {
                 </span>
               </div>
               <div className="flex items-center space-x-2">
-                <span className="text-sm text-gray-500">
+                <span className="text-sm text-gray-500 dark:text-gray-400">
                   {formatDate(ad.createdAt)}
                 </span>
                 {isAuthenticated && user?.id !== ad.user.id && (
@@ -243,7 +244,7 @@ const AdDetail: React.FC = () => {
                     <button
                       onClick={toggleFavorite}
                       disabled={favoriteLoading}
-                      className="p-2 rounded-full hover:bg-gray-100 transition-colors"
+                      className="p-2 rounded-full hover:bg-gray-100 transition-colors dark:hover:bg-secondary-800"
                       title="Favorilere ekle"
                     >
                       {isFavorite ? (
@@ -255,7 +256,7 @@ const AdDetail: React.FC = () => {
                     <button
                       onClick={handleSendMessage}
                       disabled={messageLoading}
-                      className="p-2 rounded-full hover:bg-gray-100 transition-colors"
+                      className="p-2 rounded-full hover:bg-gray-100 transition-colors dark:hover:bg-secondary-800"
                       title="Mesaj gönder"
                     >
                       <ChatBubbleLeftRightIcon className="h-5 w-5 text-gray-400" />
@@ -266,26 +267,27 @@ const AdDetail: React.FC = () => {
             </div>
 
             {/* Title */}
-            <h1 className="text-3xl font-bold text-gray-900 mb-4">
+            <h1 className="text-3xl font-bold text-gray-900 mb-4 dark:text-gray-100">
               {ad.title}
             </h1>
 
             {/* Description */}
-            <div className="prose max-w-none mb-6">
-              <p className="text-gray-700 leading-relaxed whitespace-pre-wrap">
-                {ad.description}
-              </p>
+            <div className="prose max-w-none mb-6 dark:prose-invert">
+              <div
+                className="text-gray-700 leading-relaxed dark:text-gray-300"
+                dangerouslySetInnerHTML={{ __html: DOMPurify.sanitize(ad.description || '') }}
+              />
             </div>
 
             {/* File */}
             {ad.fileUrl && (
               <div className="mb-6">
-                <h3 className="text-lg font-medium text-gray-900 mb-2">Ek Dosya</h3>
+                <h3 className="text-lg font-medium text-gray-900 mb-2 dark:text-gray-100">Ek Dosya</h3>
                 <a
                   href={ad.fileUrl}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="inline-flex items-center px-4 py-2 border border-gray-300 rounded-md text-sm font-medium text-gray-700 bg-white hover:bg-gray-50"
+                  className="inline-flex items-center px-4 py-2 border border-gray-300 rounded-md text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 dark:bg-secondary-900 dark:text-gray-200 dark:border-secondary-800 dark:hover:bg-secondary-800"
                 >
                   <DocumentIcon className="h-4 w-4 mr-2" />
                   Dosyayı İndir
@@ -296,8 +298,8 @@ const AdDetail: React.FC = () => {
             {/* Location */}
             {ad.locationDetails && (
               <div className="mb-6">
-                <h3 className="text-lg font-medium text-gray-900 mb-2">Konum</h3>
-                <div className="flex items-center text-gray-600">
+                <h3 className="text-lg font-medium text-gray-900 mb-2 dark:text-gray-100">Konum</h3>
+                <div className="flex items-center text-gray-600 dark:text-gray-300">
                   <MapPinIcon className="h-5 w-5 mr-2" />
                   {ad.locationDetails}
                 </div>
@@ -307,7 +309,7 @@ const AdDetail: React.FC = () => {
             {/* WhatsApp Link */}
             {ad.whatsappLink && (
               <div className="mb-6">
-                <h3 className="text-lg font-medium text-gray-900 mb-2">WhatsApp</h3>
+                <h3 className="text-lg font-medium text-gray-900 mb-2 dark:text-gray-100">WhatsApp</h3>
                 <a
                   href={ad.whatsappLink}
                   target="_blank"
@@ -325,29 +327,29 @@ const AdDetail: React.FC = () => {
         {/* Sidebar */}
         <div className="lg:col-span-1">
           {/* User Info */}
-          <div className="bg-white rounded-lg shadow-sm border p-6 mb-6">
-            <h3 className="text-lg font-medium text-gray-900 mb-4">İlan Sahibi</h3>
+          <div className="bg-white rounded-lg shadow-sm border p-6 mb-6 dark:bg-secondary-900 dark:border-secondary-800">
+            <h3 className="text-lg font-medium text-gray-900 mb-4 dark:text-gray-100">İlan Sahibi</h3>
             <div className="flex items-center space-x-3 mb-4">
-              <div className="w-12 h-12 bg-primary-100 rounded-full flex items-center justify-center">
-                <span className="text-lg font-medium text-primary-600">
+              <div className="w-12 h-12 bg-primary-100 rounded-full flex items-center justify-center dark:bg-secondary-800">
+                <span className="text-lg font-medium text-primary-600 dark:text-primary-400">
                   {ad.user.firstName[0]}{ad.user.lastName[0]}
                 </span>
               </div>
               <div>
-                <p className="text-lg font-medium text-gray-900">
+                <p className="text-lg font-medium text-gray-900 dark:text-gray-100">
                   {ad.user.firstName} {ad.user.lastName}
                 </p>
-                <p className="text-sm text-gray-500">
+                <p className="text-sm text-gray-500 dark:text-gray-400">
                   {ad.user.department}
                 </p>
                 {ad.user.faculty && (
-                  <p className="text-sm text-gray-500">
+                  <p className="text-sm text-gray-500 dark:text-gray-400">
                     {ad.user.faculty}
                   </p>
                 )}
               </div>
             </div>
-            <div className="flex items-center text-sm text-gray-500 mb-4">
+            <div className="flex items-center text-sm text-gray-500 mb-4 dark:text-gray-400">
               <CalendarIcon className="h-4 w-4 mr-2" />
               Üye olma: {new Date(ad.user.createdAt).toLocaleDateString('tr-TR')}
             </div>
@@ -360,24 +362,24 @@ const AdDetail: React.FC = () => {
           </div>
 
           {/* Stats */}
-          <div className="bg-white rounded-lg shadow-sm border p-6">
-            <h3 className="text-lg font-medium text-gray-900 mb-4">İstatistikler</h3>
+          <div className="bg-white rounded-lg shadow-sm border p-6 dark:bg-secondary-900 dark:border-secondary-800">
+            <h3 className="text-lg font-medium text-gray-900 mb-4 dark:text-gray-100">İstatistikler</h3>
             <div className="space-y-3">
               <div className="flex items-center justify-between">
                 <div className="flex items-center space-x-2">
                   <HeartIcon className="h-4 w-4 text-gray-400" />
-                  <span className="text-sm text-gray-600">Favoriler</span>
+                  <span className="text-sm text-gray-600 dark:text-gray-300">Favoriler</span>
                 </div>
-                <span className="text-sm font-medium text-gray-900">
+                <span className="text-sm font-medium text-gray-900 dark:text-gray-100">
                   {ad._count.favorites}
                 </span>
               </div>
               <div className="flex items-center justify-between">
                 <div className="flex items-center space-x-2">
                   <ChatBubbleLeftRightIcon className="h-4 w-4 text-gray-400" />
-                  <span className="text-sm text-gray-600">Mesajlar</span>
+                  <span className="text-sm text-gray-600 dark:text-gray-300">Mesajlar</span>
                 </div>
-                <span className="text-sm font-medium text-gray-900">
+                <span className="text-sm font-medium text-gray-900 dark:text-gray-100">
                   {ad._count.conversations}
                 </span>
               </div>

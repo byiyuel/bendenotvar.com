@@ -9,6 +9,8 @@ import {
   PhotoIcon,
   XMarkIcon
 } from '@heroicons/react/24/outline';
+import DOMPurify from 'dompurify';
+import RichTextEditor from '../../components/RichTextEditor';
 
 const CreateAd: React.FC = () => {
   const navigate = useNavigate();
@@ -28,7 +30,9 @@ const CreateAd: React.FC = () => {
     try {
       const formData = new FormData();
       formData.append('title', data.title);
-      formData.append('description', data.description);
+      // Sanitize rich text HTML before sending
+      const sanitized = DOMPurify.sanitize(data.description);
+      formData.append('description', sanitized);
       formData.append('category', data.category);
       formData.append('shareType', data.shareType);
       
@@ -130,22 +134,19 @@ const CreateAd: React.FC = () => {
             <label htmlFor="description" className="block text-sm font-medium text-gray-700 mb-2">
               Açıklama *
             </label>
-            <textarea
-              {...register('description', {
-                required: 'Açıklama gereklidir',
-                minLength: {
-                  value: 10,
-                  message: 'Açıklama en az 10 karakter olmalıdır'
-                },
-                maxLength: {
-                  value: 1000,
-                  message: 'Açıklama en fazla 1000 karakter olmalıdır'
-                }
-              })}
-              rows={4}
-              className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-primary-500 focus:border-primary-500"
-              placeholder="İlanınız hakkında detaylı bilgi verin..."
+            <RichTextEditor
+              value={(watch('description') as any) || ''}
+              onChange={(value: string) => {
+                (document.getElementById('description-hidden') as HTMLInputElement).value = value;
+              }}
+              className="bg-white"
             />
+            {/* Hidden input to keep RHF validation */}
+            <input id="description-hidden" type="hidden" {...register('description', {
+              required: 'Açıklama gereklidir',
+              minLength: { value: 10, message: 'Açıklama en az 10 karakter olmalıdır' },
+              maxLength: { value: 5000, message: 'Açıklama en fazla 5000 karakter olmalıdır' }
+            })} />
             {errors.description && (
               <p className="mt-1 text-sm text-red-600">{errors.description.message}</p>
             )}

@@ -157,16 +157,16 @@ const Ads: React.FC = () => {
     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
       {/* Header */}
       <div className="mb-8">
-        <h1 className="text-3xl font-bold text-gray-900 mb-4">
+        <h1 className="text-3xl font-bold text-gray-900 mb-4 dark:text-gray-100">
           Tüm İlanlar
         </h1>
-        <p className="text-lg text-gray-600">
+        <p className="text-lg text-gray-600 dark:text-gray-300">
           Kampüsteki tüm paylaşımları keşfedin
         </p>
       </div>
 
       {/* Search and Filters */}
-      <div className="bg-white rounded-lg shadow-sm border p-6 mb-8">
+      <div className="bg-white rounded-lg shadow-sm border p-6 mb-8 dark:bg-secondary-900 dark:border-secondary-800">
         <div className="flex flex-col lg:flex-row gap-4">
           {/* Search Bar */}
           <div className="flex-1">
@@ -196,10 +196,10 @@ const Ads: React.FC = () => {
       ) : !ads || ads.length === 0 ? (
         <div className="text-center py-20">
           <DocumentTextIcon className="h-16 w-16 text-gray-400 mx-auto mb-4" />
-          <h3 className="text-lg font-medium text-gray-900 mb-2">
+          <h3 className="text-lg font-medium text-gray-900 mb-2 dark:text-gray-100">
             İlan bulunamadı
           </h3>
-          <p className="text-gray-500 mb-6">
+          <p className="text-gray-500 mb-6 dark:text-gray-400">
             Arama kriterlerinize uygun ilan bulunmuyor.
           </p>
           <Link
@@ -213,7 +213,7 @@ const Ads: React.FC = () => {
         <>
           {/* Results Info */}
           <div className="mb-6">
-            <p className="text-sm text-gray-600">
+            <p className="text-sm text-gray-600 dark:text-gray-400">
               {pagination.total} sonuçtan {((pagination.page - 1) * pagination.limit) + 1}-
               {Math.min(pagination.page * pagination.limit, pagination.total)} arası gösteriliyor
             </p>
@@ -224,7 +224,7 @@ const Ads: React.FC = () => {
             {ads && ads.map((ad) => (
               <div
                 key={ad.id}
-                className="bg-white rounded-lg border border-gray-200 hover:shadow-md hover:border-primary-200 transition-all duration-200"
+                className="bg-white rounded-lg border border-gray-200 hover:shadow-md hover:border-primary-200 transition-all duration-200 dark:bg-secondary-900 dark:border-secondary-800"
               >
                 <div className="p-6">
                   {/* Category Badge */}
@@ -240,12 +240,12 @@ const Ads: React.FC = () => {
                   </div>
 
                   {/* Title */}
-                  <h3 className="text-lg font-semibold text-gray-900 mb-2 line-clamp-2">
+                  <h3 className="text-lg font-semibold text-gray-900 mb-2 line-clamp-2 dark:text-gray-100">
                     {ad.title}
                   </h3>
 
                   {/* Description */}
-                  <p className="text-sm text-gray-600 mb-4 line-clamp-3">
+                  <p className="text-sm text-gray-600 mb-4 line-clamp-3 dark:text-gray-300">
                     {ad.description}
                   </p>
 
@@ -254,7 +254,7 @@ const Ads: React.FC = () => {
                     <span className="text-sm font-medium text-primary-600">
                       {getShareTypeText(ad.shareType)}
                     </span>
-                    <span className="text-sm text-gray-500">
+                    <span className="text-sm text-gray-500 dark:text-gray-400">
                       {ad.user?.firstName} {ad.user?.lastName}
                     </span>
                   </div>
@@ -289,7 +289,7 @@ const Ads: React.FC = () => {
                 <button
                   onClick={() => handlePageChange(pagination.page - 1)}
                   disabled={pagination.page === 1}
-                  className="px-3 py-2 text-sm font-medium text-gray-500 bg-white border border-gray-300 rounded-md hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed"
+                  className="px-3 py-2 text-sm font-medium text-gray-500 bg-white border border-gray-300 rounded-md hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed dark:bg-secondary-900 dark:text-gray-400 dark:border-secondary-800 dark:hover:bg-secondary-800"
                 >
                   Önceki
                 </button>
@@ -304,7 +304,7 @@ const Ads: React.FC = () => {
                       className={`px-3 py-2 text-sm font-medium rounded-md ${
                         page === pagination.page
                           ? 'text-primary-600 bg-primary-50 border border-primary-300'
-                          : 'text-gray-500 bg-white border border-gray-300 hover:bg-gray-50'
+                          : 'text-gray-500 bg-white border border-gray-300 hover:bg-gray-50 dark:bg-secondary-900 dark:text-gray-400 dark:border-secondary-800 dark:hover:bg-secondary-800'
                       }`}
                     >
                       {page}
@@ -316,7 +316,7 @@ const Ads: React.FC = () => {
                 <button
                   onClick={() => handlePageChange(pagination.page + 1)}
                   disabled={pagination.page === pagination.pages}
-                  className="px-3 py-2 text-sm font-medium text-gray-500 bg-white border border-gray-300 rounded-md hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed"
+                  className="px-3 py-2 text-sm font-medium text-gray-500 bg-white border border-gray-300 rounded-md hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed dark:bg-secondary-900 dark:text-gray-400 dark:border-secondary-800 dark:hover:bg-secondary-800"
                 >
                   Sonraki
                 </button>

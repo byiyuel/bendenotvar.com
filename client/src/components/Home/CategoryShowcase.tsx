@@ -45,13 +45,13 @@ const CategoryShowcase: React.FC = () => {
   ];
 
   return (
-    <div className="bg-gray-50 py-16">
+    <div className="bg-gray-50 py-16 dark:bg-secondary-900">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="text-center mb-12">
-          <h2 className="text-3xl font-bold text-gray-900 mb-4">
+          <h2 className="text-3xl font-bold text-gray-900 mb-4 dark:text-gray-100">
             Kategoriler
           </h2>
-          <p className="text-lg text-gray-600 max-w-3xl mx-auto">
+          <p className="text-lg text-gray-600 max-w-3xl mx-auto dark:text-gray-300">
             İhtiyacınıza uygun kategoriyi seçin ve binlerce öğrenci tarafından paylaşılan içeriklere ulaşın
           </p>
         </div>
@@ -63,7 +63,7 @@ const CategoryShowcase: React.FC = () => {
               <Link
                 key={index}
                 to={category.href}
-                className="group relative bg-white rounded-xl shadow-sm hover:shadow-lg transition-all duration-300 overflow-hidden"
+                className="group relative bg-white rounded-xl shadow-sm hover:shadow-lg transition-all duration-300 overflow-hidden dark:bg-secondary-900 dark:border dark:border-secondary-800"
               >
                 <div className={`absolute inset-0 bg-gradient-to-br ${category.color} opacity-0 group-hover:opacity-10 transition-opacity duration-300`}></div>
                 
@@ -72,19 +72,19 @@ const CategoryShowcase: React.FC = () => {
                     <Icon className="h-6 w-6 text-white" />
                   </div>
                   
-                  <h3 className="text-lg font-semibold text-gray-900 mb-2 group-hover:text-gray-700 transition-colors">
+                  <h3 className="text-lg font-semibold text-gray-900 mb-2 group-hover:text-gray-700 transition-colors dark:text-gray-100 dark:group-hover:text-gray-200">
                     {category.name}
                   </h3>
                   
-                  <p className="text-sm text-gray-600 mb-4 leading-relaxed">
+                  <p className="text-sm text-gray-600 mb-4 leading-relaxed dark:text-gray-300">
                     {category.description}
                   </p>
                   
                   <div className="flex items-center justify-between">
-                    <span className="text-sm font-medium text-gray-500">
+                    <span className="text-sm font-medium text-gray-500 dark:text-gray-400">
                       {category.itemCount} öğe
                     </span>
-                    <ArrowRightIcon className="h-4 w-4 text-gray-400 group-hover:text-gray-600 group-hover:translate-x-1 transition-all duration-200" />
+                    <ArrowRightIcon className="h-4 w-4 text-gray-400 group-hover:text-gray-600 group-hover:translate-x-1 transition-all duration-200 dark:text-gray-500 dark:group-hover:text-gray-300" />
                   </div>
                 </div>
               </Link>
