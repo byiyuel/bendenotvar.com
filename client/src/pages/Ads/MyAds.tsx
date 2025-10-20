@@ -143,7 +143,7 @@ const MyAds: React.FC = () => {
 
   return (
     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-      <div className="mb-8">
+      <div className="mb-6">
         <h1 className="text-3xl font-bold text-gray-900 dark:text-gray-100">İlanlarım</h1>
         <p className="mt-2 text-gray-600">Oluşturduğunuz ilanları buradan yönetebilirsiniz.</p>
       </div>
@@ -164,7 +164,7 @@ const MyAds: React.FC = () => {
         </div>
       ) : (
         <>
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
             {ads.map((ad) => (
               <div key={ad.id} className="bg-white dark:bg-secondary-800 rounded-lg shadow-sm border border-gray-200 dark:border-secondary-700 overflow-hidden hover:shadow-md transition-shadow">
                 {ad.fileUrl && (

@@ -2,6 +2,7 @@ const express = require('express');
 const bcrypt = require('bcryptjs');
 const { PrismaClient } = require('@prisma/client');
 const { body, validationResult } = require('express-validator');
+const { upload, handleUploadError } = require('../middleware/upload');
 
 const router = express.Router();
 const prisma = new PrismaClient();
@@ -63,6 +64,9 @@ router.get('/profile', async (req, res) => {
         lastName: true,
         department: true,
         faculty: true,
+        year: true,
+        bio: true,
+        profileImage: true,
         isVerified: true,
         role: true,
         createdAt: true,
@@ -86,15 +90,22 @@ router.get('/profile', async (req, res) => {
 });
 
 // Update user profile
-router.put('/profile', validateProfileUpdate, handleValidationErrors, async (req, res) => {
+router.put('/profile', upload.single('profileImage'), validateProfileUpdate, handleValidationErrors, handleUploadError, async (req, res) => {
   try {
-    const { firstName, lastName, department, faculty } = req.body;
+    const { firstName, lastName, department, faculty, year, bio } = req.body;
 
     const updateData = {};
     if (firstName !== undefined) updateData.firstName = firstName;
     if (lastName !== undefined) updateData.lastName = lastName;
     if (department !== undefined) updateData.department = department;
     if (faculty !== undefined) updateData.faculty = faculty;
+    if (year !== undefined) updateData.year = year;
+    if (bio !== undefined) updateData.bio = bio;
+    
+    // Profil fotoğrafı yüklendiyse
+    if (req.file) {
+      updateData.profileImage = `/uploads/${req.file.filename}`;
+    }
 
     const user = await prisma.user.update({
       where: { id: req.user.id },
@@ -106,6 +117,9 @@ router.put('/profile', validateProfileUpdate, handleValidationErrors, async (req
         lastName: true,
         department: true,
         faculty: true,
+        year: true,
+        bio: true,
+        profileImage: true,
         isVerified: true,
         role: true,
         createdAt: true,

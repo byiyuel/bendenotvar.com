@@ -1,0 +1,5 @@
+-- AlterTable
+ALTER TABLE "users" ADD COLUMN "year" TEXT;
+ALTER TABLE "users" ADD COLUMN "bio" TEXT;
+ALTER TABLE "users" ADD COLUMN "profileImage" TEXT;
+

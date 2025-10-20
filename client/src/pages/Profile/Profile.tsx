@@ -14,10 +14,7 @@ import {
   PencilIcon,
   CheckIcon,
   XMarkIcon,
-  CameraIcon,
-  DocumentTextIcon,
-  HeartIcon,
-  ChatBubbleLeftRightIcon
+  CameraIcon
 } from '@heroicons/react/24/outline';
 
 const Profile: React.FC = () => {
@@ -28,6 +25,7 @@ const Profile: React.FC = () => {
   const [editing, setEditing] = useState(false);
   const [saving, setSaving] = useState(false);
   const [imagePreview, setImagePreview] = useState<string | null>(null);
+  const [selectedFile, setSelectedFile] = useState<File | null>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   const { register, handleSubmit, formState: { errors }, reset } = useForm<Partial<User>>();
@@ -53,25 +51,30 @@ const Profile: React.FC = () => {
     setSaving(true);
 
     try {
-      // For now, let's use regular object instead of FormData
-      const updateData = {
-        ...data,
-        // profileImage will be handled separately when backend supports it
-      };
+      // FormData kullanarak hem dosya hem de diğer verileri gönder
+      const formData = new FormData();
+      
+      // Email'i hariç tut - sadece düzenlenebilir alanları ekle
+      if (data.firstName) formData.append('firstName', data.firstName);
+      if (data.lastName) formData.append('lastName', data.lastName);
+      if (data.department) formData.append('department', data.department);
+      if (data.faculty) formData.append('faculty', data.faculty);
+      if (data.year) formData.append('year', data.year);
+      if (data.bio) formData.append('bio', data.bio);
+      
+      // Profil fotoğrafı varsa ekle
+      if (selectedFile) {
+        formData.append('profileImage', selectedFile);
+      }
 
-      const response = await userAPI.updateProfile(updateData);
+      const response = await userAPI.updateProfile(formData);
       const updatedUser = response.data.user || response.data;
       setUser(updatedUser);
       setEditing(false);
       setImagePreview(null);
+      setSelectedFile(null);
       
-      showSuccess('Başarılı', 'Profil bilgileriniz güncellendi');
-      
-      // Update auth context if needed
-      if (authUser && response.data.user.email !== authUser.email) {
-        // We'll need to update the auth context properly
-        // For now, just update the user state
-      }
+      showSuccess('Profil güncellendi', 'Profil bilgileriniz başarıyla güncellendi');
     } catch (error: any) {
       showError('Hata', error.response?.data?.message || 'Profil güncellenirken bir hata oluştu');
     } finally {
@@ -82,8 +85,8 @@ const Profile: React.FC = () => {
   const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (file) {
-      if (file.size > 50 * 1024 * 1024) { // 50MB limit
-        showError('Hata', 'Dosya boyutu 50MB\'dan küçük olmalıdır');
+      if (file.size > 5 * 1024 * 1024) { // 5MB limit
+        showError('Hata', 'Dosya boyutu 5MB\'dan küçük olmalıdır');
         return;
       }
 
@@ -92,6 +95,7 @@ const Profile: React.FC = () => {
         return;
       }
 
+      setSelectedFile(file);
       const reader = new FileReader();
       reader.onload = (e) => {
         setImagePreview(e.target?.result as string);
@@ -103,6 +107,7 @@ const Profile: React.FC = () => {
   const cancelEdit = () => {
     setEditing(false);
     setImagePreview(null);
+    setSelectedFile(null);
     if (user) {
       reset(user);
     }
@@ -197,35 +202,8 @@ const Profile: React.FC = () => {
               <p className="text-gray-600 dark:text-gray-400 break-all">{user.email}</p>
             </div>
 
-            {/* Quick Stats */}
-            <div className="space-y-4">
-              <div className="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
-                <div className="flex items-center">
-                  <DocumentTextIcon className="h-5 w-5 text-blue-600 mr-3" />
-                  <span className="text-sm font-medium text-gray-700">İlanlarım</span>
-                </div>
-                <span className="text-sm font-semibold text-gray-900 dark:text-gray-100">{user.adsCount || 0}</span>
-              </div>
-              
-              <div className="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
-                <div className="flex items-center">
-                  <HeartIcon className="h-5 w-5 text-red-600 mr-3" />
-                  <span className="text-sm font-medium text-gray-700">Favorilerim</span>
-                </div>
-                <span className="text-sm font-semibold text-gray-900 dark:text-gray-100">{user.favoritesCount || 0}</span>
-              </div>
-              
-              <div className="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
-                <div className="flex items-center">
-                  <ChatBubbleLeftRightIcon className="h-5 w-5 text-green-600 mr-3" />
-                  <span className="text-sm font-medium text-gray-700">Mesajlarım</span>
-                </div>
-                <span className="text-sm font-semibold text-gray-900 dark:text-gray-100">{user.messagesCount || 0}</span>
-              </div>
-            </div>
-
             {/* Member Since */}
-            <div className="mt-6 pt-6 border-t border-gray-200">
+            <div className="mt-6 pt-6 border-t border-gray-200 dark:border-secondary-600">
               <div className="flex items-center text-sm text-gray-600">
                 <CalendarIcon className="h-4 w-4 mr-2" />
                 Üyelik: {formatDate(user.createdAt)}

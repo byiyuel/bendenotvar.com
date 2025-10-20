@@ -70,8 +70,14 @@ export const userAPI = {
   getProfile: (): Promise<AxiosResponse<User>> =>
     api.get('/user/profile'),
   
-  updateProfile: (data: Partial<User>): Promise<AxiosResponse<{ message: string; user: User }>> =>
-    api.put('/user/profile', data),
+  updateProfile: (data: Partial<User> | FormData): Promise<AxiosResponse<{ message: string; user: User }>> => {
+    const isFormData = data instanceof FormData;
+    return api.put('/user/profile', data, isFormData ? {
+      headers: {
+        'Content-Type': 'multipart/form-data',
+      },
+    } : undefined);
+  },
   
   changePassword: (data: { currentPassword: string; newPassword: string }): Promise<AxiosResponse<{ message: string }>> =>
     api.put('/user/change-password', data),

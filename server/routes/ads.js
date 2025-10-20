@@ -292,9 +292,9 @@ router.delete('/:id', authenticateToken, async (req, res) => {
       });
     }
 
-    await prisma.ad.update({
-      where: { id },
-      data: { status: 'DELETED' }
+    // İlanı direkt sil (DELETED status yerine)
+    await prisma.ad.delete({
+      where: { id }
     });
 
     res.json({
