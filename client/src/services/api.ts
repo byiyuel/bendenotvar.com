@@ -172,6 +172,14 @@ export const statsAPI = {
     totalFavorites: number;
   }>> =>
     api.get('/stats'),
+  
+  getCategoryStats: (): Promise<AxiosResponse<{
+    notes: number;
+    books: number;
+    equipment: number;
+    projects: number;
+  }>> =>
+    api.get('/stats/categories'),
 };
 
 export default api;

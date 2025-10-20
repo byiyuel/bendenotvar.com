@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import {
   BookOpenIcon,
@@ -7,15 +7,44 @@ import {
   LightBulbIcon,
   ArrowRightIcon
 } from '@heroicons/react/24/outline';
+import { statsAPI } from '../../services/api';
+
+interface CategoryCounts {
+  notes: number;
+  books: number;
+  equipment: number;
+  projects: number;
+}
 
 const CategoryShowcase: React.FC = () => {
+  const [counts, setCounts] = useState<CategoryCounts>({
+    notes: 0,
+    books: 0,
+    equipment: 0,
+    projects: 0
+  });
+
+  useEffect(() => {
+    fetchCategoryCounts();
+  }, []);
+
+  const fetchCategoryCounts = async () => {
+    try {
+      const response = await statsAPI.getCategoryStats();
+      setCounts(response.data);
+    } catch (error) {
+      console.error('Error fetching category counts:', error);
+      // Keep counts at 0 if API fails
+    }
+  };
+
   const categories = [
     {
       name: 'Ders Notları',
       description: 'Sınav notları, özet çıkarımlar ve ders materyalleri',
       icon: BookOpenIcon,
       color: 'from-blue-500 to-blue-600',
-      itemCount: 450,
+      itemCount: counts.notes,
       href: '/ads?category=notes'
     },
     {
@@ -23,7 +52,7 @@ const CategoryShowcase: React.FC = () => {
       description: 'Ders kitapları, referans kaynaklar ve akademik yayınlar',
       icon: DocumentTextIcon,
       color: 'from-green-500 to-green-600',
-      itemCount: 320,
+      itemCount: counts.books,
       href: '/ads?category=books'
     },
     {
@@ -31,7 +60,7 @@ const CategoryShowcase: React.FC = () => {
       description: 'Laboratuvar araçları, teknik ekipman ve malzemeler',
       icon: WrenchScrewdriverIcon,
       color: 'from-purple-500 to-purple-600',
-      itemCount: 180,
+      itemCount: counts.equipment,
       href: '/ads?category=equipment'
     },
     {
@@ -39,7 +68,7 @@ const CategoryShowcase: React.FC = () => {
       description: 'Proje örnekleri, şablonlar ve kaynak kodlar',
       icon: LightBulbIcon,
       color: 'from-orange-500 to-orange-600',
-      itemCount: 95,
+      itemCount: counts.projects,
       href: '/ads?category=projects'
     }
   ];

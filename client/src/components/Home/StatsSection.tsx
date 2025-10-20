@@ -33,12 +33,12 @@ const StatsSection: React.FC = () => {
       setStats(response.data);
     } catch (error) {
       console.error('Error fetching stats:', error);
-      // Fallback to demo data if API fails
+      // Keep stats at 0 if API fails (real data only)
       setStats({
-        totalAds: 1247,
-        totalUsers: 342,
-        totalMessages: 856,
-        totalFavorites: 423
+        totalAds: 0,
+        totalUsers: 0,
+        totalMessages: 0,
+        totalFavorites: 0
       });
     } finally {
       setLoading(false);
