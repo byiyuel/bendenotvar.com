@@ -23,15 +23,33 @@ const storage = multer.diskStorage({
 
 // Dosya filtresi
 const fileFilter = (req, file, cb) => {
-  // İzin verilen dosya türleri
-  const allowedTypes = /jpeg|jpg|png|gif|pdf|doc|docx/;
-  const extname = allowedTypes.test(path.extname(file.originalname).toLowerCase());
-  const mimetype = allowedTypes.test(file.mimetype);
+  // İzin verilen dosya uzantıları
+  const allowedExtensions = /jpeg|jpg|png|gif|pdf|doc|docx/;
+  const extname = allowedExtensions.test(path.extname(file.originalname).toLowerCase());
+  
+  // İzin verilen MIME türleri
+  const allowedMimeTypes = [
+    'image/jpeg',
+    'image/jpg', 
+    'image/png',
+    'image/gif',
+    'application/pdf',
+    'application/msword', // .doc
+    'application/vnd.openxmlformats-officedocument.wordprocessingml.document', // .docx
+    'application/octet-stream' // Bazı sistemlerde docx bu şekilde gelir
+  ];
+  
+  const mimetypeAllowed = allowedMimeTypes.includes(file.mimetype);
 
-  if (mimetype && extname) {
+  if (mimetypeAllowed && extname) {
     return cb(null, true);
   } else {
-    cb(new Error('Sadece resim ve PDF dosyaları yüklenebilir!'));
+    console.error('Rejected file:', {
+      originalname: file.originalname,
+      mimetype: file.mimetype,
+      size: file.size
+    });
+    cb(new Error(`Desteklenmeyen dosya tipi: ${file.mimetype}. Sadece resim (JPG, PNG, GIF), PDF ve Word dosyaları yüklenebilir!`));
   }
 };
 
@@ -57,14 +75,25 @@ const handleUploadError = (error, req, res, next) => {
         message: 'Çok fazla dosya yüklediniz.' 
       });
     }
+    if (error.code === 'LIMIT_UNEXPECTED_FILE') {
+      return res.status(400).json({ 
+        message: 'Beklenmeyen dosya alanı.' 
+      });
+    }
+    // Diğer Multer hataları
+    return res.status(400).json({ 
+      message: 'Dosya yükleme hatası: ' + error.message 
+    });
   }
   
-  if (error.message.includes('Sadece resim ve PDF dosyaları')) {
+  // Dosya tipi hataları
+  if (error.message && error.message.includes('Desteklenmeyen dosya tipi')) {
     return res.status(400).json({ 
       message: error.message 
     });
   }
 
+  console.error('Upload error:', error);
   next(error);
 };
 

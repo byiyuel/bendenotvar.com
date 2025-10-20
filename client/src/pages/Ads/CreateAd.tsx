@@ -63,6 +63,22 @@ const CreateAd: React.FC = () => {
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (file) {
+      // Dosya boyutu kontrolü (50MB)
+      if (file.size > 50 * 1024 * 1024) {
+        showError('Hata', 'Dosya boyutu 50MB\'dan küçük olmalıdır');
+        e.target.value = ''; // Input'u temizle
+        return;
+      }
+
+      // Dosya tipi kontrolü
+      const allowedTypes = ['image/jpeg', 'image/jpg', 'image/png', 'image/gif', 'application/pdf', 
+                           'application/msword', 'application/vnd.openxmlformats-officedocument.wordprocessingml.document'];
+      if (!allowedTypes.includes(file.type)) {
+        showError('Hata', 'Sadece resim (JPG, PNG, GIF), PDF ve Word dosyaları yüklenebilir');
+        e.target.value = ''; // Input'u temizle
+        return;
+      }
+
       setSelectedFile(file);
       
       // Preview for images

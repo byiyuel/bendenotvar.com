@@ -14,7 +14,8 @@ const Header: React.FC = () => {
   const { user, logout, isAuthenticated } = useAuth();
   const navigate = useNavigate();
   const location = useLocation();
-  const [isMenuOpen, setIsMenuOpen] = useState(false);
+  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+  const [isDropdownOpen, setIsDropdownOpen] = useState(false);
   const { isDark, toggle } = useTheme();
 
   const handleLogout = () => {
@@ -114,51 +115,98 @@ const Header: React.FC = () => {
                 </Link>
 
                 {/* User Dropdown */}
-                <div className="relative group">
-                  <button className="flex items-center space-x-2 text-gray-700 hover:text-primary-600 transition-colors dark:text-gray-200 dark:hover:text-primary-400">
+                <div className="relative">
+                  <button 
+                    onClick={() => setIsDropdownOpen(!isDropdownOpen)}
+                    className="flex items-center space-x-2 text-gray-700 hover:text-primary-600 transition-colors dark:text-gray-200 dark:hover:text-primary-400"
+                  >
                     <div className="w-8 h-8 bg-primary-100 rounded-full flex items-center justify-center dark:bg-secondary-800">
                       <UserIcon className="h-5 w-5 text-primary-600 dark:text-primary-400" />
                     </div>
-                    <span className="text-sm font-medium">
+                    <span className="text-sm font-medium truncate max-w-[120px]">
                       {user?.firstName} {user?.lastName}
                     </span>
+                    {/* Dropdown arrow */}
+                    <svg className={`h-4 w-4 transition-transform ${isDropdownOpen ? 'rotate-180' : ''}`} fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+                    </svg>
                   </button>
 
                   {/* Dropdown Menu */}
-                  <div className="absolute right-0 mt-2 w-48 bg-white rounded-md shadow-lg ring-1 ring-black/5 py-1 z-50 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 dark:bg-secondary-800 dark:ring-white/10">
-                    <Link
-                      to="/profile"
-                      className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 transition-colors dark:text-gray-200 dark:hover:bg-secondary-700"
-                    >
-                      Profil
-                    </Link>
-                    <Link
-                      to="/my-ads"
-                      className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 transition-colors dark:text-gray-200 dark:hover:bg-secondary-700"
-                    >
-                      İlanlarım
-                    </Link>
-                    <Link
-                      to="/favorites"
-                      className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 transition-colors dark:text-gray-200 dark:hover:bg-secondary-700"
-                    >
-                      Favoriler
-                    </Link>
-                    <Link
-                      to="/messages"
-                      className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 transition-colors dark:text-gray-200 dark:hover:bg-secondary-700"
-                    >
-                      Mesajlar
-                    </Link>
-                    <hr className="my-1" />
-                    <button
-                      onClick={handleLogout}
-                      className="block w-full text-left px-4 py-2 text-sm text-red-600 hover:bg-red-50 transition-colors dark:hover:bg-red-950/40"
-                    >
-                      <ArrowRightOnRectangleIcon className="h-4 w-4 inline mr-2" />
-                      Çıkış Yap
-                    </button>
-                  </div>
+                  {isDropdownOpen && (
+                    <>
+                      {/* Backdrop to close menu */}
+                      <div 
+                        className="fixed inset-0 z-40" 
+                        onClick={() => setIsDropdownOpen(false)}
+                      />
+                      
+                      <div className="absolute right-0 mt-2 w-56 bg-white rounded-lg shadow-xl ring-1 ring-black/10 py-1 z-[60] animate-in fade-in slide-in-from-top-2 duration-200 dark:bg-secondary-800 dark:ring-white/10 border border-gray-200 dark:border-secondary-700">
+                        <div className="px-4 py-3 border-b border-gray-200 dark:border-secondary-700">
+                          <p className="text-sm font-medium text-gray-900 dark:text-gray-100 truncate">
+                            {user?.firstName} {user?.lastName}
+                          </p>
+                          <p className="text-xs text-gray-500 dark:text-gray-400 truncate mt-1">
+                            {user?.email}
+                          </p>
+                        </div>
+                        
+                        <div className="py-1">
+                          <Link
+                            to="/profile"
+                            onClick={() => setIsDropdownOpen(false)}
+                            className="flex items-center px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 transition-colors dark:text-gray-200 dark:hover:bg-secondary-700"
+                          >
+                            <UserIcon className="h-4 w-4 mr-3" />
+                            Profil
+                          </Link>
+                          <Link
+                            to="/my-ads"
+                            onClick={() => setIsDropdownOpen(false)}
+                            className="flex items-center px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 transition-colors dark:text-gray-200 dark:hover:bg-secondary-700"
+                          >
+                            <svg className="h-4 w-4 mr-3" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                            </svg>
+                            İlanlarım
+                          </Link>
+                          <Link
+                            to="/favorites"
+                            onClick={() => setIsDropdownOpen(false)}
+                            className="flex items-center px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 transition-colors dark:text-gray-200 dark:hover:bg-secondary-700"
+                          >
+                            <svg className="h-4 w-4 mr-3" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z" />
+                            </svg>
+                            Favoriler
+                          </Link>
+                          <Link
+                            to="/messages"
+                            onClick={() => setIsDropdownOpen(false)}
+                            className="flex items-center px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 transition-colors dark:text-gray-200 dark:hover:bg-secondary-700"
+                          >
+                            <svg className="h-4 w-4 mr-3" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z" />
+                            </svg>
+                            Mesajlar
+                          </Link>
+                        </div>
+                        
+                        <div className="border-t border-gray-200 dark:border-secondary-700 py-1">
+                          <button
+                            onClick={() => {
+                              setIsDropdownOpen(false);
+                              handleLogout();
+                            }}
+                            className="flex items-center w-full text-left px-4 py-2 text-sm text-red-600 hover:bg-red-50 transition-colors dark:text-red-400 dark:hover:bg-red-950/40"
+                          >
+                            <ArrowRightOnRectangleIcon className="h-4 w-4 mr-3" />
+                            Çıkış Yap
+                          </button>
+                        </div>
+                      </div>
+                    </>
+                  )}
                 </div>
               </div>
             ) : (
@@ -182,10 +230,10 @@ const Header: React.FC = () => {
           {/* Mobile menu button */}
           <div className="md:hidden">
             <button
-              onClick={() => setIsMenuOpen(!isMenuOpen)}
+              onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
               className="text-gray-700 hover:text-primary-600 focus:outline-none focus:text-primary-600 dark:text-gray-200 dark:hover:text-primary-400"
             >
-              {isMenuOpen ? (
+              {isMobileMenuOpen ? (
                 <XMarkIcon className="h-6 w-6" />
               ) : (
                 <Bars3Icon className="h-6 w-6" />
@@ -195,7 +243,7 @@ const Header: React.FC = () => {
         </div>
 
         {/* Mobile Navigation */}
-        {isMenuOpen && (
+        {isMobileMenuOpen && (
           <div className="md:hidden">
             <div className="px-2 pt-2 pb-3 space-y-1 sm:px-3 border-t dark:border-secondary-800 dark:bg-secondary-900">
               <Link
