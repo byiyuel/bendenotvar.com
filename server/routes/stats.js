@@ -44,32 +44,32 @@ router.get('/', async (req, res) => {
 // @access  Public
 router.get('/categories', async (req, res) => {
   try {
-    const [notesCount, booksCount, equipmentCount, projectsCount] = await Promise.all([
-      prisma.ad.count({
-        where: {
-          status: 'ACTIVE',
-          category: { contains: 'not', mode: 'insensitive' }
-        }
-      }),
-      prisma.ad.count({
-        where: {
-          status: 'ACTIVE',
-          category: { contains: 'kitap', mode: 'insensitive' }
-        }
-      }),
-      prisma.ad.count({
-        where: {
-          status: 'ACTIVE',
-          category: { contains: 'ekipman', mode: 'insensitive' }
-        }
-      }),
-      prisma.ad.count({
-        where: {
-          status: 'ACTIVE',
-          category: { contains: 'proje', mode: 'insensitive' }
-        }
-      })
-    ]);
+    // SQLite doesn't support case-insensitive mode, so we'll get all active ads and filter
+    const allActiveAds = await prisma.ad.findMany({
+      where: {
+        status: 'ACTIVE'
+      },
+      select: {
+        category: true
+      }
+    });
+
+    // Count by category (case-insensitive)
+    const notesCount = allActiveAds.filter(ad => 
+      ad.category.toLowerCase().includes('not')
+    ).length;
+    
+    const booksCount = allActiveAds.filter(ad => 
+      ad.category.toLowerCase().includes('kitap')
+    ).length;
+    
+    const equipmentCount = allActiveAds.filter(ad => 
+      ad.category.toLowerCase().includes('ekipman')
+    ).length;
+    
+    const projectsCount = allActiveAds.filter(ad => 
+      ad.category.toLowerCase().includes('proje')
+    ).length;
 
     res.json({
       notes: notesCount,
