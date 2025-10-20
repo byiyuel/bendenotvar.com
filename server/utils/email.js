@@ -26,7 +26,7 @@ const sendVerificationEmail = async (email, token) => {
         Messages: [
           {
             From: {
-              Email: 'noreply@bendenotvar.com',
+              Email: 'noreply@bendenotvar.com.tr',
               Name: 'bendenotvar'
             },
             To: [
@@ -75,7 +75,7 @@ const sendPasswordResetEmail = async (email, token) => {
         Messages: [
           {
             From: {
-              Email: 'noreply@bendenotvar.com',
+              Email: 'noreply@bendenotvar.com.tr',
               Name: 'bendenotvar'
             },
             To: [
@@ -122,7 +122,7 @@ const sendMessageNotification = async (email, senderName, adTitle) => {
         Messages: [
           {
             From: {
-              Email: 'noreply@bendenotvar.com',
+              Email: 'noreply@bendenotvar.com.tr',
               Name: 'bendenotvar'
             },
             To: [
