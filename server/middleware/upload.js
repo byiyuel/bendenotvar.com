@@ -39,7 +39,7 @@ const fileFilter = (req, file, cb) => {
 const upload = multer({
   storage: storage,
   limits: {
-    fileSize: parseInt(process.env.MAX_FILE_SIZE) || 10 * 1024 * 1024 // 10MB
+    fileSize: parseInt(process.env.MAX_FILE_SIZE) || 50 * 1024 * 1024 // 50MB
   },
   fileFilter: fileFilter
 });
@@ -49,7 +49,7 @@ const handleUploadError = (error, req, res, next) => {
   if (error instanceof multer.MulterError) {
     if (error.code === 'LIMIT_FILE_SIZE') {
       return res.status(400).json({ 
-        message: 'Dosya boyutu çok büyük. Maksimum 10MB yükleyebilirsiniz.' 
+        message: 'Dosya boyutu çok büyük. Maksimum 50MB yükleyebilirsiniz.' 
       });
     }
     if (error.code === 'LIMIT_FILE_COUNT') {

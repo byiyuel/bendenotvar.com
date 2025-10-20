@@ -298,7 +298,7 @@ const CreateAd: React.FC = () => {
                       <p className="pl-1">veya sürükleyip bırakın</p>
                     </div>
                     <p className="text-xs text-gray-500 dark:text-gray-400">
-                      PNG, JPG, PDF, DOC, DOCX (Max 10MB)
+                      PNG, JPG, PDF, DOC, DOCX (Max 50MB)
                     </p>
                   </>
                 )}
