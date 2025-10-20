@@ -170,52 +170,6 @@ router.put('/change-password', validatePasswordChange, handleValidationErrors, a
   }
 });
 
-// Get user's ads
-router.get('/ads', async (req, res) => {
-  try {
-    const { page = 1, limit = 12, status } = req.query;
-    const skip = (parseInt(page) - 1) * parseInt(limit);
-
-    const where = { userId: req.user.id };
-    if (status) {
-      where.status = status;
-    }
-
-    const [ads, total] = await Promise.all([
-      prisma.ad.findMany({
-        where,
-        skip,
-        take: parseInt(limit),
-        orderBy: { createdAt: 'desc' },
-        include: {
-          _count: {
-            select: {
-              favorites: true,
-              conversations: true
-            }
-          }
-        }
-      }),
-      prisma.ad.count({ where })
-    ]);
-
-    res.json({
-      ads,
-      pagination: {
-        page: parseInt(page),
-        limit: parseInt(limit),
-        total,
-        pages: Math.ceil(total / parseInt(limit))
-      }
-    });
-  } catch (error) {
-    console.error('Get user ads error:', error);
-    res.status(500).json({
-      message: 'İlanlar alınırken hata oluştu'
-    });
-  }
-});
-
 // Get user's conversations
 router.get('/conversations', async (req, res) => {
   try {
@@ -358,19 +312,20 @@ router.delete('/account', async (req, res) => {
 // @access  Private
 router.get('/ads', async (req, res) => {
   try {
+    console.log('📋 GET /api/user/ads - User:', req.user.id);
+    
     const { page = 1, limit = 12, status } = req.query;
     const skip = (parseInt(page) - 1) * parseInt(limit);
 
     const where = {
-      userId: req.user.userId || req.user.id
+      userId: req.user.id
     };
-
-    console.log('User ID from token:', req.user.userId || req.user.id);
-    console.log('Where clause:', where);
 
     if (status) {
       where.status = status;
     }
+
+    console.log('🔍 Searching ads with where:', where);
 
     const [ads, total] = await Promise.all([
       prisma.ad.findMany({
@@ -385,6 +340,12 @@ router.get('/ads', async (req, res) => {
               faculty: true,
               department: true
             }
+          },
+          _count: {
+            select: {
+              favorites: true,
+              conversations: true
+            }
           }
         },
         orderBy: {
@@ -396,8 +357,7 @@ router.get('/ads', async (req, res) => {
       prisma.ad.count({ where })
     ]);
 
-    console.log('Found ads:', ads.length);
-    console.log('Total ads:', total);
+    console.log(`✅ Found ${ads.length} ads (total: ${total}) for user ${req.user.id}`);
 
     const pages = Math.ceil(total / parseInt(limit));
 
@@ -411,8 +371,8 @@ router.get('/ads', async (req, res) => {
       }
     });
   } catch (error) {
-    console.error('Get user ads error:', error);
-    res.status(500).json({ message: 'Sunucu hatası' });
+    console.error('❌ Get user ads error:', error);
+    res.status(500).json({ message: 'İlanlar alınırken hata oluştu' });
   }
 });
 
