@@ -41,6 +41,9 @@ const limiter = rateLimit({
   message: 'Too many requests from this IP, please try again later.'
 });
 
+// Trust proxy (Nginx reverse proxy için)
+app.set('trust proxy', 1);
+
 // Middleware
 app.use(helmet());
 app.use(compression());
