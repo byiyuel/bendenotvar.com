@@ -46,7 +46,7 @@ const Header: React.FC = () => {
           </Link>
 
           {/* Desktop Navigation */}
-          <nav className="hidden md:flex space-x-8">
+          <nav className="hidden md:flex space-x-8 flex-1 justify-center">
             <Link
               to="/"
               className={navLinkClass('/')}

@@ -72,7 +72,7 @@ const Footer: React.FC = () => {
         <div className="mt-8 pt-8 border-t border-gray-200 dark:border-secondary-800">
           <div className="flex flex-col md:flex-row justify-between items-center">
             <p className="text-gray-500 text-sm dark:text-gray-400">
-              © 2024 bendenotvar. Tüm hakları saklıdır.
+              © 2025 bendenotvar. Tüm hakları saklıdır.
             </p>
             <div className="flex space-x-6 mt-4 md:mt-0">
               <a href="/privacy" className="text-gray-500 hover:text-primary-600 text-sm transition-colors dark:text-gray-400 dark:hover:text-primary-400">

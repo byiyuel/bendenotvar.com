@@ -18,6 +18,9 @@ const Profile = lazy(() => import('./pages/Profile/Profile'));
 const Messages = lazy(() => import('./pages/Messages/Messages'));
 const Favorites = lazy(() => import('./pages/Favorites/Favorites'));
 const MyAds = lazy(() => import('./pages/Ads/MyAds'));
+const Privacy = lazy(() => import('./pages/Privacy'));
+const Terms = lazy(() => import('./pages/Terms'));
+const Contact = lazy(() => import('./pages/Contact'));
 
 function App() {
   return (
@@ -36,6 +39,9 @@ function App() {
             <Route path="/verify/:token" element={<EmailVerification />} />
             <Route path="/ads" element={<Layout><Ads /></Layout>} />
             <Route path="/ads/:id" element={<Layout><AdDetail /></Layout>} />
+            <Route path="/privacy" element={<Layout><Privacy /></Layout>} />
+            <Route path="/terms" element={<Layout><Terms /></Layout>} />
+            <Route path="/contact" element={<Layout><Contact /></Layout>} />
             
             {/* Protected Routes */}
             <Route path="/ads/create" element={
