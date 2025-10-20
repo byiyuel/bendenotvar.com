@@ -146,7 +146,7 @@ const Profile: React.FC = () => {
     <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
       {/* Header */}
       <div className="mb-8">
-        <h1 className="text-3xl font-bold text-gray-900 mb-4">
+        <h1 className="text-3xl font-bold text-gray-900 dark:text-gray-100 mb-4">
           Profilim
         </h1>
         <p className="text-lg text-gray-600">
@@ -157,7 +157,7 @@ const Profile: React.FC = () => {
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
         {/* Profile Card */}
         <div className="lg:col-span-1">
-          <div className="bg-white rounded-lg shadow border p-6">
+          <div className="bg-white dark:bg-secondary-800 rounded-lg shadow border dark:border-secondary-700 p-6">
             {/* Profile Image */}
             <div className="text-center mb-6">
               <div className="relative inline-block">
@@ -191,10 +191,10 @@ const Profile: React.FC = () => {
                   </>
                 )}
               </div>
-              <h2 className="text-xl font-semibold text-gray-900 mt-4">
+              <h2 className="text-xl font-semibold text-gray-900 dark:text-gray-100 mt-4 break-words">
                 {user.firstName} {user.lastName}
               </h2>
-              <p className="text-gray-600">{user.email}</p>
+              <p className="text-gray-600 dark:text-gray-400 break-all">{user.email}</p>
             </div>
 
             {/* Quick Stats */}
@@ -204,7 +204,7 @@ const Profile: React.FC = () => {
                   <DocumentTextIcon className="h-5 w-5 text-blue-600 mr-3" />
                   <span className="text-sm font-medium text-gray-700">İlanlarım</span>
                 </div>
-                <span className="text-sm font-semibold text-gray-900">{user.adsCount || 0}</span>
+                <span className="text-sm font-semibold text-gray-900 dark:text-gray-100">{user.adsCount || 0}</span>
               </div>
               
               <div className="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
@@ -212,7 +212,7 @@ const Profile: React.FC = () => {
                   <HeartIcon className="h-5 w-5 text-red-600 mr-3" />
                   <span className="text-sm font-medium text-gray-700">Favorilerim</span>
                 </div>
-                <span className="text-sm font-semibold text-gray-900">{user.favoritesCount || 0}</span>
+                <span className="text-sm font-semibold text-gray-900 dark:text-gray-100">{user.favoritesCount || 0}</span>
               </div>
               
               <div className="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
@@ -220,7 +220,7 @@ const Profile: React.FC = () => {
                   <ChatBubbleLeftRightIcon className="h-5 w-5 text-green-600 mr-3" />
                   <span className="text-sm font-medium text-gray-700">Mesajlarım</span>
                 </div>
-                <span className="text-sm font-semibold text-gray-900">{user.messagesCount || 0}</span>
+                <span className="text-sm font-semibold text-gray-900 dark:text-gray-100">{user.messagesCount || 0}</span>
               </div>
             </div>
 
@@ -236,11 +236,11 @@ const Profile: React.FC = () => {
 
         {/* Profile Form */}
         <div className="lg:col-span-2">
-          <div className="bg-white rounded-lg shadow border">
+          <div className="bg-white dark:bg-secondary-800 rounded-lg shadow border dark:border-secondary-700">
             {/* Header */}
             <div className="px-6 py-4 border-b border-gray-200">
               <div className="flex items-center justify-between">
-                <h3 className="text-lg font-medium text-gray-900">
+                <h3 className="text-lg font-medium text-gray-900 dark:text-gray-100">
                   Profil Bilgileri
                 </h3>
                 <div className="flex space-x-2">
@@ -249,7 +249,7 @@ const Profile: React.FC = () => {
                       <button
                         type="button"
                         onClick={cancelEdit}
-                        className="inline-flex items-center px-3 py-2 border border-gray-300 shadow-sm text-sm leading-4 font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50"
+                        className="inline-flex items-center px-3 py-2 border border-gray-300 dark:border-secondary-600 shadow-sm text-sm leading-4 font-medium rounded-md text-gray-700 dark:text-gray-300 bg-white dark:bg-secondary-800 hover:bg-gray-50 dark:hover:bg-secondary-700"
                       >
                         <XMarkIcon className="h-4 w-4 mr-1" />
                         İptal
@@ -272,7 +272,7 @@ const Profile: React.FC = () => {
                     <button
                       type="button"
                       onClick={() => setEditing(true)}
-                      className="inline-flex items-center px-3 py-2 border border-gray-300 shadow-sm text-sm leading-4 font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50"
+                      className="inline-flex items-center px-3 py-2 border border-gray-300 dark:border-secondary-600 shadow-sm text-sm leading-4 font-medium rounded-md text-gray-700 dark:text-gray-300 bg-white dark:bg-secondary-800 hover:bg-gray-50 dark:hover:bg-secondary-700"
                     >
                       <PencilIcon className="h-4 w-4 mr-1" />
                       Düzenle
@@ -294,7 +294,7 @@ const Profile: React.FC = () => {
                     type="text"
                     {...register('firstName', { required: 'Ad alanı zorunludur' })}
                     disabled={!editing}
-                    className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-primary-500 focus:border-primary-500 disabled:bg-gray-50 disabled:text-gray-500"
+                    className="w-full px-3 py-2 border border-gray-300 dark:border-secondary-600 rounded-md shadow-sm focus:outline-none focus:ring-primary-500 focus:border-primary-500 disabled:bg-gray-50 disabled:text-gray-500 dark:bg-secondary-700 dark:text-gray-100 dark:disabled:bg-secondary-800 dark:disabled:text-gray-500 break-words"
                   />
                   {errors.firstName && (
                     <p className="mt-1 text-sm text-red-600">{errors.firstName.message}</p>
@@ -310,7 +310,7 @@ const Profile: React.FC = () => {
                     type="text"
                     {...register('lastName', { required: 'Soyad alanı zorunludur' })}
                     disabled={!editing}
-                    className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-primary-500 focus:border-primary-500 disabled:bg-gray-50 disabled:text-gray-500"
+                    className="w-full px-3 py-2 border border-gray-300 dark:border-secondary-600 rounded-md shadow-sm focus:outline-none focus:ring-primary-500 focus:border-primary-500 disabled:bg-gray-50 disabled:text-gray-500 dark:bg-secondary-700 dark:text-gray-100 dark:disabled:bg-secondary-800 dark:disabled:text-gray-500 break-words"
                   />
                   {errors.lastName && (
                     <p className="mt-1 text-sm text-red-600">{errors.lastName.message}</p>
@@ -327,7 +327,7 @@ const Profile: React.FC = () => {
                     type="email"
                     {...register('email', { required: 'E-posta alanı zorunludur' })}
                     disabled={true}
-                    className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm bg-gray-50 text-gray-500"
+                    className="w-full px-3 py-2 border border-gray-300 dark:border-secondary-600 rounded-md shadow-sm bg-gray-50 dark:bg-secondary-800 text-gray-500 dark:text-gray-400 break-all"
                   />
                   <p className="mt-1 text-xs text-gray-500">
                     E-posta adresi değiştirilemez
@@ -345,7 +345,7 @@ const Profile: React.FC = () => {
                     {...register('department')}
                     disabled={!editing}
                     placeholder="Örn: Bilgisayar Mühendisliği"
-                    className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-primary-500 focus:border-primary-500 disabled:bg-gray-50 disabled:text-gray-500"
+                    className="w-full px-3 py-2 border border-gray-300 dark:border-secondary-600 rounded-md shadow-sm focus:outline-none focus:ring-primary-500 focus:border-primary-500 disabled:bg-gray-50 disabled:text-gray-500 dark:bg-secondary-700 dark:text-gray-100 dark:disabled:bg-secondary-800 dark:disabled:text-gray-500 break-words"
                   />
                 </div>
 
@@ -358,7 +358,7 @@ const Profile: React.FC = () => {
                   <select
                     {...register('year')}
                     disabled={!editing}
-                    className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-primary-500 focus:border-primary-500 disabled:bg-gray-50 disabled:text-gray-500"
+                    className="w-full px-3 py-2 border border-gray-300 dark:border-secondary-600 rounded-md shadow-sm focus:outline-none focus:ring-primary-500 focus:border-primary-500 disabled:bg-gray-50 disabled:text-gray-500 dark:bg-secondary-700 dark:text-gray-100 dark:disabled:bg-secondary-800 dark:disabled:text-gray-500 break-words"
                   >
                     <option value="">Seçin</option>
                     <option value="1">1. Sınıf</option>
@@ -379,7 +379,7 @@ const Profile: React.FC = () => {
                     disabled={!editing}
                     rows={4}
                     placeholder="Kendinizi kısaca tanıtın..."
-                    className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-primary-500 focus:border-primary-500 disabled:bg-gray-50 disabled:text-gray-500"
+                    className="w-full px-3 py-2 border border-gray-300 dark:border-secondary-600 rounded-md shadow-sm focus:outline-none focus:ring-primary-500 focus:border-primary-500 disabled:bg-gray-50 disabled:text-gray-500 dark:bg-secondary-700 dark:text-gray-100 dark:disabled:bg-secondary-800 dark:disabled:text-gray-500 break-words"
                   />
                 </div>
               </div>

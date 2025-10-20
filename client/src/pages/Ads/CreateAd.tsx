@@ -20,7 +20,7 @@ const CreateAd: React.FC = () => {
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
   const [filePreview, setFilePreview] = useState<string | null>(null);
 
-  const { register, handleSubmit, formState: { errors }, watch } = useForm<AdForm>();
+  const { register, handleSubmit, formState: { errors }, watch, setValue } = useForm<AdForm>();
   const shareType = watch('shareType');
 
   const onSubmit = async (data: AdForm) => {
@@ -87,25 +87,25 @@ const CreateAd: React.FC = () => {
   return (
     <div className="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
       <div className="mb-8">
-        <h1 className="text-3xl font-bold text-gray-900 mb-4">
+        <h1 className="text-3xl font-bold text-gray-900 dark:text-gray-100 mb-4">
           Yeni İlan Oluştur
         </h1>
-        <p className="text-lg text-gray-600">
+        <p className="text-lg text-gray-600 dark:text-gray-300">
           Kampüsteki arkadaşlarınızla paylaşmak istediğiniz materyali ekleyin
         </p>
       </div>
 
       <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
         {error && (
-          <div className="bg-red-50 border border-red-200 text-red-600 px-4 py-3 rounded-md">
+          <div className="bg-red-50 border border-red-200 text-red-600 px-4 py-3 rounded-md dark:bg-red-900 dark:border-red-700 dark:text-red-200">
             {error}
           </div>
         )}
 
-        <div className="bg-white rounded-lg shadow-sm border p-6">
+        <div className="bg-white dark:bg-secondary-800 rounded-lg shadow-sm border dark:border-secondary-700 p-6">
           {/* Title */}
           <div className="mb-6">
-            <label htmlFor="title" className="block text-sm font-medium text-gray-700 mb-2">
+            <label htmlFor="title" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
               İlan Başlığı *
             </label>
             <input
@@ -121,7 +121,7 @@ const CreateAd: React.FC = () => {
                 }
               })}
               type="text"
-              className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-primary-500 focus:border-primary-500"
+              className="w-full px-3 py-2 border border-gray-300 dark:border-secondary-600 dark:bg-secondary-700 dark:text-gray-100 rounded-md focus:ring-primary-500 focus:border-primary-500"
               placeholder="Örn: Veri Yapıları Ders Notları"
             />
             {errors.title && (
@@ -131,18 +131,18 @@ const CreateAd: React.FC = () => {
 
           {/* Description */}
           <div className="mb-6">
-            <label htmlFor="description" className="block text-sm font-medium text-gray-700 mb-2">
+            <label htmlFor="description" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
               Açıklama *
             </label>
             <RichTextEditor
               value={(watch('description') as any) || ''}
               onChange={(value: string) => {
-                (document.getElementById('description-hidden') as HTMLInputElement).value = value;
+                setValue('description', value, { shouldValidate: true });
               }}
               className="bg-white"
             />
             {/* Hidden input to keep RHF validation */}
-            <input id="description-hidden" type="hidden" {...register('description', {
+            <input type="hidden" {...register('description', {
               required: 'Açıklama gereklidir',
               minLength: { value: 10, message: 'Açıklama en az 10 karakter olmalıdır' },
               maxLength: { value: 5000, message: 'Açıklama en fazla 5000 karakter olmalıdır' }
@@ -154,14 +154,14 @@ const CreateAd: React.FC = () => {
 
           {/* Category */}
           <div className="mb-6">
-            <label htmlFor="category" className="block text-sm font-medium text-gray-700 mb-2">
+            <label htmlFor="category" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
               Kategori *
             </label>
             <select
               {...register('category', {
                 required: 'Kategori seçimi gereklidir'
               })}
-              className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-primary-500 focus:border-primary-500"
+              className="w-full px-3 py-2 border border-gray-300 dark:border-secondary-600 dark:bg-secondary-700 dark:text-gray-100 rounded-md focus:ring-primary-500 focus:border-primary-500"
             >
               <option value="">Kategori seçiniz</option>
               <option value="Not">📝 Not</option>
@@ -178,14 +178,14 @@ const CreateAd: React.FC = () => {
 
           {/* Share Type */}
           <div className="mb-6">
-            <label htmlFor="shareType" className="block text-sm font-medium text-gray-700 mb-2">
+            <label htmlFor="shareType" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
               Paylaşım Tipi *
             </label>
             <select
               {...register('shareType', {
                 required: 'Paylaşım tipi seçimi gereklidir'
               })}
-              className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-primary-500 focus:border-primary-500"
+              className="w-full px-3 py-2 border border-gray-300 dark:border-secondary-600 dark:bg-secondary-700 dark:text-gray-100 rounded-md focus:ring-primary-500 focus:border-primary-500"
             >
               <option value="">Paylaşım tipi seçiniz</option>
               <option value="BORROW">🔄 Ödünç</option>
@@ -200,16 +200,16 @@ const CreateAd: React.FC = () => {
           {/* Location Details */}
           {shareType === 'BORROW' && (
             <div className="mb-6">
-            <label htmlFor="locationDetails" className="block text-sm font-medium text-gray-700 mb-2">
+            <label htmlFor="locationDetails" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
                 Teslim Konumu
               </label>
               <input
                 {...register('locationDetails')}
                 type="text"
-                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-primary-500 focus:border-primary-500"
+                className="w-full px-3 py-2 border border-gray-300 dark:border-secondary-600 dark:bg-secondary-700 dark:text-gray-100 rounded-md focus:ring-primary-500 focus:border-primary-500"
                 placeholder="Örn: Mühendislik Fakültesi Kütüphanesi"
               />
-              <p className="mt-1 text-sm text-gray-500">
+              <p className="mt-1 text-sm text-gray-500 dark:text-gray-400">
                 Ödünç verirken nerede buluşacağınızı belirtin
               </p>
             </div>
@@ -217,7 +217,7 @@ const CreateAd: React.FC = () => {
 
           {/* WhatsApp Link */}
           <div className="mb-6">
-            <label htmlFor="whatsappLink" className="block text-sm font-medium text-gray-700 mb-2">
+            <label htmlFor="whatsappLink" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
               WhatsApp Linki (Opsiyonel)
             </label>
             <input
@@ -228,23 +228,23 @@ const CreateAd: React.FC = () => {
                 }
               })}
               type="url"
-              className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-primary-500 focus:border-primary-500"
+              className="w-full px-3 py-2 border border-gray-300 dark:border-secondary-600 dark:bg-secondary-700 dark:text-gray-100 rounded-md focus:ring-primary-500 focus:border-primary-500"
               placeholder="https://wa.me/905xxxxxxxxx"
             />
             {errors.whatsappLink && (
               <p className="mt-1 text-sm text-red-600">{errors.whatsappLink.message}</p>
             )}
-            <p className="mt-1 text-sm text-gray-500">
+            <p className="mt-1 text-sm text-gray-500 dark:text-gray-400">
               İsteğe bağlı: WhatsApp üzerinden iletişim için link ekleyebilirsiniz
             </p>
           </div>
 
           {/* File Upload */}
           <div className="mb-6">
-            <label className="block text-sm font-medium text-gray-700 mb-2">
+            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
               Dosya Ekle (Opsiyonel)
             </label>
-            <div className="mt-1 flex justify-center px-6 pt-5 pb-6 border-2 border-gray-300 border-dashed rounded-md hover:border-gray-400 transition-colors">
+            <div className="mt-1 flex justify-center px-6 pt-5 pb-6 border-2 border-gray-300 dark:border-secondary-600 border-dashed rounded-md hover:border-gray-400 dark:hover:border-secondary-500 transition-colors">
               <div className="space-y-1 text-center">
                 {selectedFile ? (
                   <div className="space-y-2">
@@ -279,11 +279,11 @@ const CreateAd: React.FC = () => {
                   </div>
                 ) : (
                   <>
-                    <PhotoIcon className="mx-auto h-12 w-12 text-gray-400" />
-                    <div className="flex text-sm text-gray-600">
+                    <PhotoIcon className="mx-auto h-12 w-12 text-gray-400 dark:text-gray-500" />
+                    <div className="flex text-sm text-gray-600 dark:text-gray-300">
                       <label
                         htmlFor="file-upload"
-                        className="relative cursor-pointer bg-white rounded-md font-medium text-primary-600 hover:text-primary-500 focus-within:outline-none focus-within:ring-2 focus-within:ring-offset-2 focus-within:ring-primary-500"
+                        className="relative cursor-pointer bg-white dark:bg-secondary-700 rounded-md font-medium text-primary-600 hover:text-primary-500 focus-within:outline-none focus-within:ring-2 focus-within:ring-offset-2 focus-within:ring-primary-500"
                       >
                         <span>Dosya seç</span>
                         <input
@@ -297,7 +297,7 @@ const CreateAd: React.FC = () => {
                       </label>
                       <p className="pl-1">veya sürükleyip bırakın</p>
                     </div>
-                    <p className="text-xs text-gray-500">
+                    <p className="text-xs text-gray-500 dark:text-gray-400">
                       PNG, JPG, PDF, DOC, DOCX (Max 10MB)
                     </p>
                   </>
@@ -312,7 +312,7 @@ const CreateAd: React.FC = () => {
           <button
             type="button"
             onClick={() => navigate('/ads')}
-            className="px-6 py-2 border border-gray-300 rounded-md text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary-500"
+            className="px-6 py-2 border border-gray-300 dark:border-secondary-600 rounded-md text-sm font-medium text-gray-700 dark:text-gray-300 bg-white dark:bg-secondary-800 hover:bg-gray-50 dark:hover:bg-secondary-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary-500"
           >
             İptal
           </button>

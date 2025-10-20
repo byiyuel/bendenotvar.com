@@ -116,14 +116,14 @@ const MyAds: React.FC = () => {
   return (
     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
       <div className="mb-8">
-        <h1 className="text-3xl font-bold text-gray-900">İlanlarım</h1>
+        <h1 className="text-3xl font-bold text-gray-900 dark:text-gray-100">İlanlarım</h1>
         <p className="mt-2 text-gray-600">Oluşturduğunuz ilanları buradan yönetebilirsiniz.</p>
       </div>
 
       {ads.length === 0 ? (
         <div className="text-center py-12">
           <DocumentIcon className="mx-auto h-12 w-12 text-gray-400" />
-          <h3 className="mt-2 text-sm font-medium text-gray-900">Henüz ilan yok</h3>
+          <h3 className="mt-2 text-sm font-medium text-gray-900 dark:text-gray-100">Henüz ilan yok</h3>
           <p className="mt-1 text-sm text-gray-500">İlk ilanınızı oluşturmak için başlayın.</p>
           <div className="mt-6">
             <Link
@@ -138,7 +138,7 @@ const MyAds: React.FC = () => {
         <>
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
             {ads.map((ad) => (
-              <div key={ad.id} className="bg-white rounded-lg shadow-sm border border-gray-200 overflow-hidden hover:shadow-md transition-shadow">
+              <div key={ad.id} className="bg-white dark:bg-secondary-800 rounded-lg shadow-sm border border-gray-200 dark:border-secondary-700 overflow-hidden hover:shadow-md transition-shadow">
                 {ad.fileUrl && (
                   <div className="aspect-w-16 aspect-h-9 bg-gray-200">
                     <img
@@ -160,7 +160,7 @@ const MyAds: React.FC = () => {
                     {getStatusBadge(ad.status)}
                   </div>
                   
-                  <h3 className="text-lg font-semibold text-gray-900 mb-2 line-clamp-2">
+                  <h3 className="text-lg font-semibold text-gray-900 dark:text-gray-100 mb-2 line-clamp-2">
                     {ad.title}
                   </h3>
                   
@@ -178,15 +178,15 @@ const MyAds: React.FC = () => {
                   <div className="flex space-x-2">
                     <Link
                       to={`/ads/${ad.id}`}
-                      className="flex-1 inline-flex items-center justify-center px-3 py-2 border border-gray-300 shadow-sm text-sm leading-4 font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50"
+                      className="flex-1 inline-flex items-center justify-center px-3 py-2 border border-gray-300 dark:border-secondary-600 shadow-sm text-sm leading-4 font-medium rounded-md text-gray-700 dark:text-gray-300 bg-white dark:bg-secondary-800 hover:bg-gray-50 dark:hover:bg-secondary-700"
                     >
                       <EyeIcon className="h-4 w-4 mr-1" />
                       Görüntüle
                     </Link>
-                    <button className="inline-flex items-center px-3 py-2 border border-gray-300 shadow-sm text-sm leading-4 font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50">
+                    <button className="inline-flex items-center px-3 py-2 border border-gray-300 dark:border-secondary-600 shadow-sm text-sm leading-4 font-medium rounded-md text-gray-700 dark:text-gray-300 bg-white dark:bg-secondary-800 hover:bg-gray-50 dark:hover:bg-secondary-700">
                       <PencilIcon className="h-4 w-4" />
                     </button>
-                    <button className="inline-flex items-center px-3 py-2 border border-red-300 shadow-sm text-sm leading-4 font-medium rounded-md text-red-700 bg-white hover:bg-red-50">
+                    <button className="inline-flex items-center px-3 py-2 border border-red-300 dark:border-red-800 shadow-sm text-sm leading-4 font-medium rounded-md text-red-700 dark:text-red-400 bg-white dark:bg-secondary-800 hover:bg-red-50 dark:hover:bg-red-900/20">
                       <TrashIcon className="h-4 w-4" />
                     </button>
                   </div>

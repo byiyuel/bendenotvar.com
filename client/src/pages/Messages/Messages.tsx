@@ -176,7 +176,7 @@ const Messages: React.FC = () => {
     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
       {/* Header */}
       <div className="mb-8">
-        <h1 className="text-3xl font-bold text-gray-900 mb-4">
+        <h1 className="text-3xl font-bold text-gray-900 dark:text-gray-100 mb-4">
           Mesajlarım
         </h1>
         <p className="text-lg text-gray-600">
@@ -184,12 +184,12 @@ const Messages: React.FC = () => {
         </p>
       </div>
 
-      <div className="bg-white rounded-lg shadow border overflow-hidden" style={{ height: '600px' }}>
+      <div className="bg-white dark:bg-secondary-800 rounded-lg shadow border dark:border-secondary-700 overflow-hidden" style={{ height: '600px' }}>
         <div className="flex h-full">
           {/* Conversations List */}
           <div className="w-1/3 border-r border-gray-200 flex flex-col">
             <div className="p-4 border-b border-gray-200">
-              <h3 className="text-lg font-medium text-gray-900">
+              <h3 className="text-lg font-medium text-gray-900 dark:text-gray-100">
                 Konuşmalar ({conversations.length})
               </h3>
             </div>
@@ -221,7 +221,7 @@ const Messages: React.FC = () => {
                             </div>
                           </div>
                           <div className="flex-1 min-w-0">
-                            <p className="text-sm font-medium text-gray-900 truncate">
+                            <p className="text-sm font-medium text-gray-900 dark:text-gray-100 truncate">
                               {otherUser.firstName} {otherUser.lastName}
                             </p>
                             <p className="text-sm text-gray-500 truncate">
@@ -254,7 +254,7 @@ const Messages: React.FC = () => {
                       <UserIcon className="h-6 w-6 text-gray-400" />
                     </div>
                     <div>
-                      <h3 className="text-lg font-medium text-gray-900">
+                      <h3 className="text-lg font-medium text-gray-900 dark:text-gray-100">
                         {getOtherUser(selectedConversation).firstName} {getOtherUser(selectedConversation).lastName}
                       </h3>
                       <p className="text-sm text-gray-500">
@@ -327,7 +327,7 @@ const Messages: React.FC = () => {
               <div className="flex-1 flex items-center justify-center">
                 <div className="text-center">
                   <ChatBubbleLeftRightIcon className="h-16 w-16 text-gray-400 mx-auto mb-4" />
-                  <h3 className="text-lg font-medium text-gray-900 mb-2">
+                  <h3 className="text-lg font-medium text-gray-900 dark:text-gray-100 mb-2">
                     Bir konuşma seçin
                   </h3>
                   <p className="text-gray-500">
