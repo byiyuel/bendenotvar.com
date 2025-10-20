@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useCallback } from 'react';
-import { Link } from 'react-router-dom';
-import { userAPI } from '../../services/api';
+import { Link, useNavigate } from 'react-router-dom';
+import { userAPI, adsAPI } from '../../services/api';
 import { Ad } from '../../types';
 import LoadingSpinner from '../../components/Loading/LoadingSpinner';
 import { useToast } from '../../contexts/ToastContext';
@@ -18,6 +18,7 @@ import {
 const MyAds: React.FC = () => {
   const [ads, setAds] = useState<Ad[]>([]);
   const [loading, setLoading] = useState(true);
+  const [deletingId, setDeletingId] = useState<string | null>(null);
   const [pagination, setPagination] = useState({
     page: 1,
     limit: 12,
@@ -25,7 +26,8 @@ const MyAds: React.FC = () => {
     pages: 0
   });
 
-  const { showError } = useToast();
+  const { showError, showSuccess } = useToast();
+  const navigate = useNavigate();
 
   const fetchMyAds = useCallback(async () => {
     try {
@@ -51,6 +53,32 @@ const MyAds: React.FC = () => {
     console.log('MyAds component mounted, fetching ads...');
     fetchMyAds();
   }, [fetchMyAds]);
+
+  const handleEdit = (adId: string) => {
+    // Şimdilik detay sayfasına yönlendir
+    // TODO: Edit page oluşturulacak
+    navigate(`/ads/${adId}`);
+  };
+
+  const handleDelete = async (adId: string) => {
+    if (!window.confirm('Bu ilanı silmek istediğinizden emin misiniz?')) {
+      return;
+    }
+
+    try {
+      setDeletingId(adId);
+      await adsAPI.deleteAd(adId);
+      showSuccess('İlan başarıyla silindi');
+      // İlanları yeniden yükle
+      fetchMyAds();
+    } catch (error: any) {
+      console.error('Delete ad error:', error);
+      const errorMessage = error.response?.data?.message || 'İlan silinirken hata oluştu';
+      showError('Hata', errorMessage);
+    } finally {
+      setDeletingId(null);
+    }
+  };
 
   const getCategoryIcon = (category: string) => {
     switch (category) {
@@ -183,11 +211,24 @@ const MyAds: React.FC = () => {
                       <EyeIcon className="h-4 w-4 mr-1" />
                       Görüntüle
                     </Link>
-                    <button className="inline-flex items-center px-3 py-2 border border-gray-300 dark:border-secondary-600 shadow-sm text-sm leading-4 font-medium rounded-md text-gray-700 dark:text-gray-300 bg-white dark:bg-secondary-800 hover:bg-gray-50 dark:hover:bg-secondary-700">
+                    <button
+                      onClick={() => handleEdit(ad.id)}
+                      className="inline-flex items-center px-3 py-2 border border-gray-300 dark:border-secondary-600 shadow-sm text-sm leading-4 font-medium rounded-md text-gray-700 dark:text-gray-300 bg-white dark:bg-secondary-800 hover:bg-gray-50 dark:hover:bg-secondary-700"
+                      title="Düzenle"
+                    >
                       <PencilIcon className="h-4 w-4" />
                     </button>
-                    <button className="inline-flex items-center px-3 py-2 border border-red-300 dark:border-red-800 shadow-sm text-sm leading-4 font-medium rounded-md text-red-700 dark:text-red-400 bg-white dark:bg-secondary-800 hover:bg-red-50 dark:hover:bg-red-900/20">
-                      <TrashIcon className="h-4 w-4" />
+                    <button
+                      onClick={() => handleDelete(ad.id)}
+                      disabled={deletingId === ad.id}
+                      className="inline-flex items-center px-3 py-2 border border-red-300 dark:border-red-800 shadow-sm text-sm leading-4 font-medium rounded-md text-red-700 dark:text-red-400 bg-white dark:bg-secondary-800 hover:bg-red-50 dark:hover:bg-red-900/20 disabled:opacity-50 disabled:cursor-not-allowed"
+                      title="Sil"
+                    >
+                      {deletingId === ad.id ? (
+                        <LoadingSpinner size="sm" />
+                      ) : (
+                        <TrashIcon className="h-4 w-4" />
+                      )}
                     </button>
                   </div>
                 </div>

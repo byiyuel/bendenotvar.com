@@ -16,7 +16,9 @@ import {
   ChatBubbleLeftRightIcon,
   CalendarIcon,
   MapPinIcon,
-  LinkIcon
+  LinkIcon,
+  PencilIcon,
+  TrashIcon
 } from '@heroicons/react/24/outline';
 import { HeartIcon as HeartSolidIcon } from '@heroicons/react/24/solid';
 
@@ -30,6 +32,10 @@ const AdDetail: React.FC = () => {
   const [isFavorite, setIsFavorite] = useState(false);
   const [favoriteLoading, setFavoriteLoading] = useState(false);
   const [messageLoading, setMessageLoading] = useState(false);
+  const [deletingAd, setDeletingAd] = useState(false);
+
+  // İlan sahibi kontrolü
+  const isOwner = user && ad && user.id === ad.user.id;
 
   const fetchAd = useCallback(async () => {
     try {
@@ -67,6 +73,34 @@ const AdDetail: React.FC = () => {
       setMessageLoading(false);
     }
   }, [ad, isAuthenticated, navigate, showSuccess, showError]);
+
+  const handleEdit = () => {
+    if (ad) {
+      navigate(`/ads/${ad.id}`);
+      // TODO: Edit page oluşturulacak
+    }
+  };
+
+  const handleDelete = async () => {
+    if (!ad) return;
+    
+    if (!window.confirm('Bu ilanı silmek istediğinizden emin misiniz? Bu işlem geri alınamaz.')) {
+      return;
+    }
+
+    try {
+      setDeletingAd(true);
+      await adsAPI.deleteAd(ad.id);
+      showSuccess('İlan başarıyla silindi');
+      navigate('/my-ads');
+    } catch (error: any) {
+      console.error('Delete ad error:', error);
+      const errorMessage = error.response?.data?.message || 'İlan silinirken hata oluştu';
+      showError('Hata', errorMessage);
+    } finally {
+      setDeletingAd(false);
+    }
+  };
 
   useEffect(() => {
     if (id) {
@@ -239,8 +273,31 @@ const AdDetail: React.FC = () => {
                 <span className="text-sm text-gray-500 dark:text-gray-400">
                   {formatDate(ad.createdAt)}
                 </span>
-                {isAuthenticated && user?.id !== ad.user.id && (
+                {isAuthenticated && isOwner && (
                   <>
+                    {/* Owner Butonları */}
+                    <button
+                      onClick={handleEdit}
+                      className="inline-flex items-center px-3 py-2 border border-gray-300 dark:border-secondary-600 shadow-sm text-sm leading-4 font-medium rounded-md text-gray-700 dark:text-gray-300 bg-white dark:bg-secondary-800 hover:bg-gray-50 dark:hover:bg-secondary-700"
+                      title="İlanı Düzenle"
+                    >
+                      <PencilIcon className="h-4 w-4 mr-1" />
+                      Düzenle
+                    </button>
+                    <button
+                      onClick={handleDelete}
+                      disabled={deletingAd}
+                      className="inline-flex items-center px-3 py-2 border border-red-300 dark:border-red-800 shadow-sm text-sm leading-4 font-medium rounded-md text-red-700 dark:text-red-400 bg-white dark:bg-secondary-800 hover:bg-red-50 dark:hover:bg-red-900/20 disabled:opacity-50 disabled:cursor-not-allowed"
+                      title="İlanı Sil"
+                    >
+                      <TrashIcon className="h-4 w-4 mr-1" />
+                      {deletingAd ? 'Siliniyor...' : 'Sil'}
+                    </button>
+                  </>
+                )}
+                {isAuthenticated && !isOwner && (
+                  <>
+                    {/* Diğer Kullanıcılar için Butonlar */}
                     <button
                       onClick={toggleFavorite}
                       disabled={favoriteLoading}
