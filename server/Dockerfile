@@ -1,6 +1,9 @@
 # Use Node.js 18 LTS
 FROM node:18-alpine
 
+# Install OpenSSL for Prisma
+RUN apk add --no-cache openssl1.1-compat libc6-compat
+
 # Set working directory
 WORKDIR /app
 
@@ -8,7 +11,7 @@ WORKDIR /app
 COPY package*.json ./
 
 # Install dependencies
-RUN npm ci --only=production
+RUN npm install --only=production
 
 # Copy source code
 COPY . .
