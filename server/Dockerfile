@@ -1,8 +1,8 @@
-# Use Node.js 18 LTS
-FROM node:18-alpine
+# Use Node.js 18 LTS with older Alpine (has openssl 1.1)
+FROM node:18-alpine3.19
 
 # Install OpenSSL for Prisma
-RUN apk add --no-cache openssl1.1-compat libc6-compat
+RUN apk add --no-cache openssl libc6-compat
 
 # Set working directory
 WORKDIR /app
