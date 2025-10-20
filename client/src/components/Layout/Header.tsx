@@ -249,7 +249,7 @@ const Header: React.FC = () => {
               <Link
                 to="/"
                 className="text-gray-700 hover:text-primary-600 block px-3 py-2 rounded-md text-base font-medium dark:text-gray-200 dark:hover:text-primary-400"
-                onClick={() => setIsMenuOpen(false)}
+                onClick={() => setIsMobileMenuOpen(false)}
               >
                 Ana Sayfa
               </Link>
@@ -258,35 +258,35 @@ const Header: React.FC = () => {
                   <Link
                     to="/ads/create"
                     className="text-gray-700 hover:text-primary-600 block px-3 py-2 rounded-md text-base font-medium dark:text-gray-200 dark:hover:text-primary-400"
-                    onClick={() => setIsMenuOpen(false)}
+                    onClick={() => setIsMobileMenuOpen(false)}
                   >
                     İlan Ekle
                   </Link>
                   <Link
                     to="/messages"
                     className="text-gray-700 hover:text-primary-600 block px-3 py-2 rounded-md text-base font-medium dark:text-gray-200 dark:hover:text-primary-400"
-                    onClick={() => setIsMenuOpen(false)}
+                    onClick={() => setIsMobileMenuOpen(false)}
                   >
                     Mesajlar
                   </Link>
                   <Link
                     to="/favorites"
                     className="text-gray-700 hover:text-primary-600 block px-3 py-2 rounded-md text-base font-medium dark:text-gray-200 dark:hover:text-primary-400"
-                    onClick={() => setIsMenuOpen(false)}
+                    onClick={() => setIsMobileMenuOpen(false)}
                   >
                     Favoriler
                   </Link>
                   <Link
                     to="/profile"
                     className="text-gray-700 hover:text-primary-600 block px-3 py-2 rounded-md text-base font-medium dark:text-gray-200 dark:hover:text-primary-400"
-                    onClick={() => setIsMenuOpen(false)}
+                    onClick={() => setIsMobileMenuOpen(false)}
                   >
                     Profil
                   </Link>
                   <button
                     onClick={() => {
                       handleLogout();
-                      setIsMenuOpen(false);
+                      setIsMobileMenuOpen(false);
                     }}
                     className="text-red-600 hover:text-red-700 block w-full text-left px-3 py-2 rounded-md text-base font-medium"
                   >
@@ -298,19 +298,19 @@ const Header: React.FC = () => {
                   <Link
                     to="/login"
                     className="text-gray-700 hover:text-primary-600 block px-3 py-2 rounded-md text-base font-medium dark:text-gray-200 dark:hover:text-primary-400"
-                    onClick={() => setIsMenuOpen(false)}
+                    onClick={() => setIsMobileMenuOpen(false)}
                   >
                     Giriş Yap
                   </Link>
                   <Link
                     to="/register"
                     className="text-gray-700 hover:text-primary-600 block px-3 py-2 rounded-md text-base font-medium dark:text-gray-200 dark:hover:text-primary-400"
-                    onClick={() => setIsMenuOpen(false)}
+                    onClick={() => setIsMobileMenuOpen(false)}
                   >
                     Kayıt Ol
                   </Link>
                   <button
-                    onClick={() => setIsMenuOpen(false)}
+                    onClick={() => setIsMobileMenuOpen(false)}
                     className="block px-3 py-2 text-left text-gray-700 hover:text-primary-600 rounded-md text-base font-medium dark:text-gray-200 dark:hover:text-primary-400"
                     aria-label="Tema Değiştir"
                   >
