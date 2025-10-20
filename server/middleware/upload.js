@@ -3,102 +3,124 @@ const path = require('path');
 const fs = require('fs');
 
 // Upload klasörünü oluştur
-const uploadDir = process.env.UPLOAD_PATH || './uploads';
+const uploadDir = './uploads';
 if (!fs.existsSync(uploadDir)) {
   fs.mkdirSync(uploadDir, { recursive: true });
 }
 
 // Dosya depolama yapılandırması
 const storage = multer.diskStorage({
-  destination: (req, file, cb) => {
+  destination: function (req, file, cb) {
     cb(null, uploadDir);
   },
-  filename: (req, file, cb) => {
-    // Benzersiz dosya adı oluştur
+  filename: function (req, file, cb) {
+    // Güvenli dosya adı oluştur
     const uniqueSuffix = Date.now() + '-' + Math.round(Math.random() * 1E9);
-    const extension = path.extname(file.originalname);
-    cb(null, file.fieldname + '-' + uniqueSuffix + extension);
+    const ext = path.extname(file.originalname);
+    const safeName = file.fieldname + '-' + uniqueSuffix + ext;
+    cb(null, safeName);
   }
 });
 
-// Dosya filtresi
-const fileFilter = (req, file, cb) => {
-  // İzin verilen dosya uzantıları
-  const allowedExtensions = /jpeg|jpg|png|gif|pdf|doc|docx/;
-  const extname = allowedExtensions.test(path.extname(file.originalname).toLowerCase());
-  
+// Dosya filtresi - Çok basit ve açık
+const fileFilter = function (req, file, cb) {
+  console.log('📁 Uploading file:', {
+    originalname: file.originalname,
+    mimetype: file.mimetype,
+    size: file.size
+  });
+
   // İzin verilen MIME türleri
-  const allowedMimeTypes = [
+  const allowedMimes = [
+    // Resimler
     'image/jpeg',
-    'image/jpg', 
+    'image/jpg',
     'image/png',
     'image/gif',
+    'image/webp',
+    // PDF
     'application/pdf',
-    'application/msword', // .doc
-    'application/vnd.openxmlformats-officedocument.wordprocessingml.document', // .docx
-    'application/octet-stream' // Bazı sistemlerde docx bu şekilde gelir
+    // Word
+    'application/msword',
+    'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
+    // Generic binary (bazı sistemlerde docx böyle gelir)
+    'application/octet-stream'
   ];
-  
-  const mimetypeAllowed = allowedMimeTypes.includes(file.mimetype);
 
-  if (mimetypeAllowed && extname) {
-    return cb(null, true);
+  // İzin verilen uzantılar
+  const ext = path.extname(file.originalname).toLowerCase();
+  const allowedExts = ['.jpg', '.jpeg', '.png', '.gif', '.webp', '.pdf', '.doc', '.docx'];
+
+  if (allowedMimes.includes(file.mimetype) && allowedExts.includes(ext)) {
+    console.log('✅ File accepted:', file.originalname);
+    cb(null, true);
   } else {
-    console.error('Rejected file:', {
-      originalname: file.originalname,
-      mimetype: file.mimetype,
-      size: file.size
-    });
-    cb(new Error(`Desteklenmeyen dosya tipi: ${file.mimetype}. Sadece resim (JPG, PNG, GIF), PDF ve Word dosyaları yüklenebilir!`));
+    console.log('❌ File rejected:', file.originalname, 'MIME:', file.mimetype, 'EXT:', ext);
+    cb(new Error(`Desteklenmeyen dosya tipi: ${ext}. Sadece resim (JPG, PNG, GIF), PDF ve Word dosyaları kabul edilir.`), false);
   }
 };
 
-// Multer yapılandırması
+// Multer yapılandırması - 50MB limit
 const upload = multer({
   storage: storage,
+  fileFilter: fileFilter,
   limits: {
-    fileSize: parseInt(process.env.MAX_FILE_SIZE) || 50 * 1024 * 1024 // 50MB
-  },
-  fileFilter: fileFilter
+    fileSize: 50 * 1024 * 1024, // 50MB
+    files: 1 // Tek dosya
+  }
 });
 
-// Hata yönetimi middleware'i
-const handleUploadError = (error, req, res, next) => {
-  if (error instanceof multer.MulterError) {
-    if (error.code === 'LIMIT_FILE_SIZE') {
-      return res.status(400).json({ 
-        message: 'Dosya boyutu çok büyük. Maksimum 50MB yükleyebilirsiniz.' 
+// Hata yönetimi middleware
+const handleUploadError = (err, req, res, next) => {
+  console.error('❌ Upload error:', err);
+
+  if (err instanceof multer.MulterError) {
+    // Multer hataları
+    if (err.code === 'LIMIT_FILE_SIZE') {
+      return res.status(400).json({
+        success: false,
+        message: 'Dosya boyutu çok büyük. Maksimum 50MB yükleyebilirsiniz.'
       });
     }
-    if (error.code === 'LIMIT_FILE_COUNT') {
-      return res.status(400).json({ 
-        message: 'Çok fazla dosya yüklediniz.' 
+    if (err.code === 'LIMIT_FILE_COUNT') {
+      return res.status(400).json({
+        success: false,
+        message: 'Tek seferde sadece 1 dosya yükleyebilirsiniz.'
       });
     }
-    if (error.code === 'LIMIT_UNEXPECTED_FILE') {
-      return res.status(400).json({ 
-        message: 'Beklenmeyen dosya alanı.' 
+    if (err.code === 'LIMIT_UNEXPECTED_FILE') {
+      return res.status(400).json({
+        success: false,
+        message: 'Beklenmeyen dosya alanı.'
       });
     }
     // Diğer Multer hataları
-    return res.status(400).json({ 
-      message: 'Dosya yükleme hatası: ' + error.message 
-    });
-  }
-  
-  // Dosya tipi hataları
-  if (error.message && error.message.includes('Desteklenmeyen dosya tipi')) {
-    return res.status(400).json({ 
-      message: error.message 
+    return res.status(400).json({
+      success: false,
+      message: 'Dosya yükleme hatası: ' + err.message
     });
   }
 
-  console.error('Upload error:', error);
-  next(error);
+  // Özel dosya tipi hataları
+  if (err && err.message && err.message.includes('Desteklenmeyen dosya tipi')) {
+    return res.status(400).json({
+      success: false,
+      message: err.message
+    });
+  }
+
+  // Genel hatalar
+  if (err) {
+    return res.status(500).json({
+      success: false,
+      message: 'Dosya yüklenirken bir hata oluştu.'
+    });
+  }
+
+  next();
 };
 
 module.exports = {
   upload,
   handleUploadError
 };
-

@@ -45,13 +45,24 @@ const CreateAd: React.FC = () => {
       }
       
       if (selectedFile) {
+        console.log('📎 Uploading file:', {
+          name: selectedFile.name,
+          size: selectedFile.size,
+          type: selectedFile.type
+        });
         formData.append('file', selectedFile);
       }
 
+      console.log('🚀 Creating ad...');
       await adsAPI.createAd(formData);
+      console.log('✅ Ad created successfully!');
+      
       showSuccess('İlan başarıyla oluşturuldu!');
       navigate('/my-ads');
     } catch (err: any) {
+      console.error('❌ Create ad error:', err);
+      console.error('Response data:', err.response?.data);
+      
       const errorMessage = err.response?.data?.message || 'İlan oluşturulurken hata oluştu';
       setError(errorMessage);
       showError('İlan oluşturulamadı', errorMessage);
