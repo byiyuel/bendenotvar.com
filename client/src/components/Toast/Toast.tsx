@@ -65,17 +65,17 @@ const Toast: React.FC<ToastProps> = ({
   };
 
   return (
-    <div className={`max-w-sm w-full border rounded-lg shadow-lg p-4 ${getBackgroundColor()} animate-slide-in-right`}>
+    <div className={`max-w-sm w-[92vw] sm:w-full border rounded-lg shadow-lg p-4 ${getBackgroundColor()} animate-slide-in-right break-words`}>
       <div className="flex">
         <div className="flex-shrink-0">
           {getIcon()}
         </div>
-        <div className="ml-3 w-0 flex-1">
-          <p className="text-sm font-medium text-gray-900">
+        <div className="ml-3 w-0 flex-1 min-w-0">
+          <p className="text-sm font-medium text-gray-900 truncate">
             {title}
           </p>
           {message && (
-            <p className="mt-1 text-sm text-gray-500">
+            <p className="mt-1 text-sm text-gray-600 leading-5 whitespace-pre-wrap break-words">
               {message}
             </p>
           )}
