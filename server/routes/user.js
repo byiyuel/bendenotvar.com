@@ -7,6 +7,14 @@ const { upload, handleUploadError } = require('../middleware/upload');
 const router = express.Router();
 const prisma = new PrismaClient();
 
+// Ensure auth middleware populated req.user
+const ensureAuth = (req, res, next) => {
+  if (!req.user || !req.user.id) {
+    return res.status(401).json({ message: 'Unauthorized' });
+  }
+  next();
+};
+
 // Validation middleware
 const validateProfileUpdate = [
   body('firstName')
@@ -53,7 +61,7 @@ const handleValidationErrors = (req, res, next) => {
 };
 
 // Get user profile
-router.get('/profile', async (req, res) => {
+router.get('/profile', ensureAuth, async (req, res) => {
   try {
     const user = await prisma.user.findUnique({
       where: { id: req.user.id },
@@ -90,7 +98,7 @@ router.get('/profile', async (req, res) => {
 });
 
 // Update user profile
-router.put('/profile', upload.single('profileImage'), validateProfileUpdate, handleValidationErrors, handleUploadError, async (req, res) => {
+router.put('/profile', ensureAuth, upload.single('profileImage'), validateProfileUpdate, handleValidationErrors, handleUploadError, async (req, res) => {
   try {
     const { firstName, lastName, department, faculty, year, bio } = req.body;
 
@@ -140,7 +148,7 @@ router.put('/profile', upload.single('profileImage'), validateProfileUpdate, han
 });
 
 // Change password
-router.put('/change-password', validatePasswordChange, handleValidationErrors, async (req, res) => {
+router.put('/change-password', ensureAuth, validatePasswordChange, handleValidationErrors, async (req, res) => {
   try {
     const { currentPassword, newPassword } = req.body;
 
@@ -185,7 +193,7 @@ router.put('/change-password', validatePasswordChange, handleValidationErrors, a
 });
 
 // Get user's conversations
-router.get('/conversations', async (req, res) => {
+router.get('/conversations', ensureAuth, async (req, res) => {
   try {
     const conversations = await prisma.conversation.findMany({
       where: {
@@ -249,7 +257,7 @@ router.get('/conversations', async (req, res) => {
 });
 
 // Get user's favorites
-router.get('/favorites', async (req, res) => {
+router.get('/favorites', ensureAuth, async (req, res) => {
   try {
     const { page = 1, limit = 12 } = req.query;
     const skip = (parseInt(page) - 1) * parseInt(limit);
@@ -303,7 +311,7 @@ router.get('/favorites', async (req, res) => {
 });
 
 // Delete user account
-router.delete('/account', async (req, res) => {
+router.delete('/account', ensureAuth, async (req, res) => {
   try {
     // Delete user (cascade will handle related records)
     await prisma.user.delete({
@@ -325,6 +333,9 @@ router.delete('/account', async (req, res) => {
 // @desc    Get user's ads
 // @access  Private
 router.get('/ads', async (req, res) => {
+  if (!req.user || !req.user.id) {
+    return res.status(401).json({ message: 'Unauthorized' });
+  }
   try {
     console.log('📋 GET /api/user/ads - User:', req.user.id);
     
