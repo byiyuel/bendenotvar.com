@@ -15,7 +15,8 @@ const adRoutes = require('./routes/ads');
 const messageRoutes = require('./routes/messages');
 const favoriteRoutes = require('./routes/favorites');
 const statsRoutes = require('./routes/stats');
-const { authenticateToken } = require('./middleware/auth');
+const adminRoutes = require('./routes/admin');
+const { authenticateToken, requireAdmin } = require('./middleware/auth');
 const { initializeSocket } = require('./socket/socketHandler');
 
 const app = express();
@@ -98,6 +99,7 @@ app.use('/api/ads', adRoutes);
 app.use('/api/messages', authenticateToken, messageRoutes);
 app.use('/api/favorites', authenticateToken, favoriteRoutes);
 app.use('/api/stats', statsRoutes);
+app.use('/api/admin', authenticateToken, requireAdmin, adminRoutes);
 
 // Health check
 app.get('/api/health', (req, res) => {

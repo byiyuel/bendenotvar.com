@@ -74,6 +74,14 @@ const Header: React.FC = () => {
                 >
                   Favoriler
                 </Link>
+                {user?.role === 'ADMIN' && (
+                  <Link
+                    to="/admin"
+                    className={navLinkClass('/admin')}
+                  >
+                    Admin
+                  </Link>
+                )}
               </>
             )}
           </nav>
@@ -190,6 +198,18 @@ const Header: React.FC = () => {
                             </svg>
                             Mesajlar
                           </Link>
+                          {user?.role === 'ADMIN' && (
+                            <Link
+                              to="/admin"
+                              onClick={() => setIsDropdownOpen(false)}
+                              className="flex items-center px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 transition-colors dark:text-gray-200 dark:hover:bg-secondary-700"
+                            >
+                              <svg className="h-4 w-4 mr-3" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 7h18M3 12h18M3 17h18" />
+                              </svg>
+                              Admin Paneli
+                            </Link>
+                          )}
                         </div>
                         
                         <div className="border-t border-gray-200 dark:border-secondary-700 py-1">

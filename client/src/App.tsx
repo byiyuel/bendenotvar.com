@@ -21,6 +21,10 @@ const MyAds = lazy(() => import('./pages/Ads/MyAds'));
 const Privacy = lazy(() => import('./pages/Privacy'));
 const Terms = lazy(() => import('./pages/Terms'));
 const Contact = lazy(() => import('./pages/Contact'));
+const AdminDashboard = lazy(() => import('./pages/Admin/Dashboard'));
+const AdminUsers = lazy(() => import('./pages/Admin/Users'));
+const AdminAds = lazy(() => import('./pages/Admin/Ads'));
+const AdminCategories = lazy(() => import('./pages/Admin/Categories'));
 
 function App() {
   return (
@@ -67,6 +71,28 @@ function App() {
             <Route path="/my-ads" element={
               <ProtectedRoute>
                 <Layout><MyAds /></Layout>
+              </ProtectedRoute>
+            } />
+
+            {/* Admin Routes */}
+            <Route path="/admin" element={
+              <ProtectedRoute requireAdmin>
+                <Layout><AdminDashboard /></Layout>
+              </ProtectedRoute>
+            } />
+            <Route path="/admin/users" element={
+              <ProtectedRoute requireAdmin>
+                <Layout><AdminUsers /></Layout>
+              </ProtectedRoute>
+            } />
+            <Route path="/admin/ads" element={
+              <ProtectedRoute requireAdmin>
+                <Layout><AdminAds /></Layout>
+              </ProtectedRoute>
+            } />
+            <Route path="/admin/categories" element={
+              <ProtectedRoute requireAdmin>
+                <Layout><AdminCategories /></Layout>
               </ProtectedRoute>
             } />
                 </Routes>

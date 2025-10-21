@@ -190,5 +190,29 @@ export const statsAPI = {
     api.get('/stats/categories'),
 };
 
+// Admin API
+export const adminAPI = {
+  getOverview: (): Promise<AxiosResponse<{ totalUsers: number; totalAds: number; totalMessages: number; totalFavorites: number }>> =>
+    api.get('/admin/overview'),
+  getUsers: (): Promise<AxiosResponse<Array<Pick<User, 'id'|'email'|'firstName'|'lastName'|'role'|'isVerified'|'createdAt'>>>> =>
+    api.get('/admin/users'),
+  updateUserRole: (id: string, role: 'USER'|'ADMIN'): Promise<AxiosResponse<{ message: string }>> =>
+    api.patch(`/admin/users/${id}/role`, { role }),
+  deleteUser: (id: string): Promise<AxiosResponse<{ message: string }>> =>
+    api.delete(`/admin/users/${id}`),
+  getAds: (): Promise<AxiosResponse<any[]>> =>
+    api.get('/admin/ads'),
+  deleteAd: (id: string): Promise<AxiosResponse<{ message: string }>> =>
+    api.delete(`/admin/ads/${id}`),
+  getCategories: (): Promise<AxiosResponse<{ id: string; name: string; description?: string }[]>> =>
+    api.get('/admin/categories'),
+  createCategory: (data: { name: string; description?: string }): Promise<AxiosResponse<{ message: string }>> =>
+    api.post('/admin/categories', data),
+  updateCategory: (id: string, data: { name: string; description?: string }): Promise<AxiosResponse<{ message: string }>> =>
+    api.put(`/admin/categories/${id}`, data),
+  deleteCategory: (id: string): Promise<AxiosResponse<{ message: string }>> =>
+    api.delete(`/admin/categories/${id}`),
+};
+
 export default api;
 
