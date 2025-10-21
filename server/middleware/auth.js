@@ -61,9 +61,20 @@ const requireVerified = (req, res, next) => {
   next();
 };
 
+const requireAdmin2FA = (req, res, next) => {
+  if (req.user.role === 'ADMIN' && !req.user.isVerified) {
+    return res.status(403).json({ message: 'Email verification required' });
+  }
+  if (req.user.role === 'ADMIN' && !req.user.totpEnabled) {
+    return res.status(403).json({ message: 'Admin için 2FA zorunludur' });
+  }
+  next();
+};
+
 module.exports = {
   authenticateToken,
   requireAdmin,
-  requireVerified
+  requireVerified,
+  requireAdmin2FA
 };
 

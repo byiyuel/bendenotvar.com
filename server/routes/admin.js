@@ -40,6 +40,7 @@ router.get('/users', async (req, res) => {
       },
     });
     res.json(users);
+    await prisma.auditLog.create({ data: { actorId: req.user.id, action: 'ADMIN_LIST_USERS' } }).catch(()=>{});
   } catch (error) {
     console.error('Admin users list error:', error);
     res.status(500).json({ message: 'Kullanıcılar alınamadı' });
@@ -55,6 +56,7 @@ router.patch('/users/:id/role', async (req, res) => {
     }
     const user = await prisma.user.update({ where: { id }, data: { role } });
     res.json({ message: 'Rol güncellendi', user: { id: user.id, role: user.role } });
+    await prisma.auditLog.create({ data: { actorId: req.user.id, action: 'ADMIN_UPDATE_ROLE', target: id, metadata: JSON.stringify({ role }) } }).catch(()=>{});
   } catch (error) {
     console.error('Admin update role error:', error);
     res.status(500).json({ message: 'Rol güncellenemedi' });
@@ -66,6 +68,7 @@ router.delete('/users/:id', async (req, res) => {
     const { id } = req.params;
     await prisma.user.delete({ where: { id } });
     res.json({ message: 'Kullanıcı silindi' });
+    await prisma.auditLog.create({ data: { actorId: req.user.id, action: 'ADMIN_DELETE_USER', target: id } }).catch(()=>{});
   } catch (error) {
     console.error('Admin delete user error:', error);
     res.status(500).json({ message: 'Kullanıcı silinemedi' });
@@ -83,6 +86,7 @@ router.get('/ads', async (req, res) => {
       },
     });
     res.json(ads);
+    await prisma.auditLog.create({ data: { actorId: req.user.id, action: 'ADMIN_LIST_ADS' } }).catch(()=>{});
   } catch (error) {
     console.error('Admin ads list error:', error);
     res.status(500).json({ message: 'İlanlar alınamadı' });
@@ -94,6 +98,7 @@ router.get('/ads/pending', async (req, res) => {
   try {
     const ads = await prisma.ad.findMany({ where: { status: 'PENDING' }, orderBy: { createdAt: 'desc' }, include: { user: { select: { id: true, firstName: true, lastName: true } } } });
     res.json(ads);
+    await prisma.auditLog.create({ data: { actorId: req.user.id, action: 'ADMIN_LIST_PENDING_ADS' } }).catch(()=>{});
   } catch (error) {
     console.error('Admin pending ads error:', error);
     res.status(500).json({ message: 'Onay bekleyen ilanlar alınamadı' });
@@ -108,6 +113,7 @@ router.patch('/ads/:id/status', async (req, res) => {
     if (!allowed.includes(status)) return res.status(400).json({ message: 'Geçersiz durum' });
     const ad = await prisma.ad.update({ where: { id }, data: { status } });
     res.json({ message: 'Durum güncellendi', ad });
+    await prisma.auditLog.create({ data: { actorId: req.user.id, action: 'ADMIN_UPDATE_AD_STATUS', target: id, metadata: JSON.stringify({ status }) } }).catch(()=>{});
   } catch (error) {
     console.error('Admin update ad status error:', error);
     res.status(500).json({ message: 'Durum güncellenemedi' });
@@ -119,6 +125,7 @@ router.delete('/ads/:id', async (req, res) => {
     const { id } = req.params;
     await prisma.ad.delete({ where: { id } });
     res.json({ message: 'İlan silindi' });
+    await prisma.auditLog.create({ data: { actorId: req.user.id, action: 'ADMIN_DELETE_AD', target: id } }).catch(()=>{});
   } catch (error) {
     console.error('Admin delete ad error:', error);
     res.status(500).json({ message: 'İlan silinemedi' });
@@ -141,6 +148,7 @@ router.post('/categories', async (req, res) => {
     const { name, description } = req.body;
     const category = await prisma.category.create({ data: { name, description } });
     res.status(201).json({ message: 'Kategori oluşturuldu', category });
+    await prisma.auditLog.create({ data: { actorId: req.user.id, action: 'ADMIN_CREATE_CATEGORY', target: category.id } }).catch(()=>{});
   } catch (error) {
     console.error('Admin create category error:', error);
     res.status(500).json({ message: 'Kategori oluşturulamadı' });
@@ -153,6 +161,7 @@ router.put('/categories/:id', async (req, res) => {
     const { name, description } = req.body;
     const category = await prisma.category.update({ where: { id }, data: { name, description } });
     res.json({ message: 'Kategori güncellendi', category });
+    await prisma.auditLog.create({ data: { actorId: req.user.id, action: 'ADMIN_UPDATE_CATEGORY', target: id } }).catch(()=>{});
   } catch (error) {
     console.error('Admin update category error:', error);
     res.status(500).json({ message: 'Kategori güncellenemedi' });
@@ -164,6 +173,7 @@ router.delete('/categories/:id', async (req, res) => {
     const { id } = req.params;
     await prisma.category.delete({ where: { id } });
     res.json({ message: 'Kategori silindi' });
+    await prisma.auditLog.create({ data: { actorId: req.user.id, action: 'ADMIN_DELETE_CATEGORY', target: id } }).catch(()=>{});
   } catch (error) {
     console.error('Admin delete category error:', error);
     res.status(500).json({ message: 'Kategori silinemedi' });

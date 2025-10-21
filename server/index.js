@@ -3,6 +3,7 @@ const path = require('path');
 const cors = require('cors');
 const helmet = require('helmet');
 const cookieParser = require('cookie-parser');
+const csurf = require('csurf');
 const morgan = require('morgan');
 const compression = require('compression');
 const rateLimit = require('express-rate-limit');
@@ -17,7 +18,7 @@ const messageRoutes = require('./routes/messages');
 const favoriteRoutes = require('./routes/favorites');
 const statsRoutes = require('./routes/stats');
 const adminRoutes = require('./routes/admin');
-const { authenticateToken, requireAdmin } = require('./middleware/auth');
+const { authenticateToken, requireAdmin, requireAdmin2FA } = require('./middleware/auth');
 const { initializeSocket } = require('./socket/socketHandler');
 
 const app = express();
@@ -66,6 +67,12 @@ app.use(cors({
   optionsSuccessStatus: 200,
   preflightContinue: false
 }));
+// CSRF protection: double submit cookie pattern
+const isProd = process.env.NODE_ENV === 'production';
+app.use(csurf({ cookie: { httpOnly: true, sameSite: 'strict', secure: isProd, path: '/' } }));
+app.get('/api/csrf-token', (req, res) => {
+  res.json({ token: req.csrfToken() });
+});
 // Handle preflight requests
 app.options('*', (req, res) => {
   const origin = req.headers.origin;
@@ -101,7 +108,7 @@ app.use('/api/ads', adRoutes);
 app.use('/api/messages', authenticateToken, messageRoutes);
 app.use('/api/favorites', authenticateToken, favoriteRoutes);
 app.use('/api/stats', statsRoutes);
-app.use('/api/admin', authenticateToken, requireAdmin, adminRoutes);
+app.use('/api/admin', authenticateToken, requireAdmin, requireAdmin2FA, adminRoutes);
 
 // Health check
 app.get('/api/health', (req, res) => {

@@ -29,6 +29,8 @@ const Profile: React.FC = () => {
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   const { register, handleSubmit, formState: { errors }, reset } = useForm<Partial<User>>();
+  const [twoFASetup, setTwoFASetup] = useState<{ base32: string; qr: string } | null>(null);
+  const [twoFACode, setTwoFACode] = useState<string>('');
 
   const fetchProfile = useCallback(async () => {
     try {
@@ -127,28 +129,26 @@ const Profile: React.FC = () => {
       const res = await fetch('/api/auth/2fa/setup', { method: 'POST', credentials: 'include' });
       const payload = await res.json();
       if (!res.ok) throw new Error(payload.message || '2FA setup başarısız');
-      // Basit modal yerine yeni sekmede QR gösterelim
-      const w = window.open('', '_blank');
-      if (w) {
-        w.document.write(`<div style="font-family:system-ui;padding:16px"><h2>2FA Kurulumu</h2><p>Authenticator uygulamasına bu QR kodu okutun:</p><img src="${payload.qr}" alt="QR" /><p><small>Secret: ${payload.base32}</small></p><p>Kurulumdan sonra profil sayfasına dönüp etkinleştirin.</p></div>`);
-      }
+      // QR ve secret'ı sayfa içinde göstermek için state'e al
+      setTwoFASetup({ base32: payload.base32, qr: payload.qr });
     } catch (e:any) {
       showError('Hata', e.message || '2FA kurulumu başlatılamadı');
     }
   };
 
   const handle2FAEnable = async () => {
-    const code = prompt('Authenticator uygulamasındaki 6 haneli kodu girin');
-    if (!code) return;
+    const code = twoFACode.trim();
+    if (!twoFASetup || !code) {
+      showError('Hata', 'Önce QR oluşturun ve 6 haneli kodu girin');
+      return;
+    }
     try {
-      // Not: base32 değerini client saklamıyoruz; kullanıcı QR sayfasından kopyalayabilir.
-      // Basit akış için tekrar setup çağrısı ile base32 alınabilir; üretim için güvenli akış gerekir.
-      const setupRes = await fetch('/api/auth/2fa/setup', { method: 'POST', credentials: 'include' });
-      const setup = await setupRes.json();
-      const res = await fetch('/api/auth/2fa/enable', { method: 'POST', headers: { 'Content-Type':'application/json' }, credentials: 'include', body: JSON.stringify({ token: code, base32: setup.base32 }) });
+      const res = await fetch('/api/auth/2fa/enable', { method: 'POST', headers: { 'Content-Type':'application/json' }, credentials: 'include', body: JSON.stringify({ token: code, base32: twoFASetup.base32 }) });
       const payload = await res.json();
       if (!res.ok) throw new Error(payload.message || '2FA etkinleştirilemedi');
       showSuccess('Başarılı', '2FA etkinleştirildi');
+      setTwoFASetup(null);
+      setTwoFACode('');
       fetchProfile();
     } catch (e:any) {
       showError('Hata', e.message || '2FA etkinleştirilemedi');
@@ -162,6 +162,8 @@ const Profile: React.FC = () => {
       const payload = await res.json();
       if (!res.ok) throw new Error(payload.message || 'Kapatılamadı');
       showSuccess('Tamam', '2FA devre dışı bırakıldı');
+      setTwoFASetup(null);
+      setTwoFACode('');
       fetchProfile();
     } catch (e:any) {
       showError('Hata', e.message || '2FA devre dışı bırakılamadı');
@@ -424,6 +426,23 @@ const Profile: React.FC = () => {
                     </div>
                   )}
                 </div>
+                {!user.totpEnabled && twoFASetup && (
+                  <div className="mt-4 grid grid-cols-1 md:grid-cols-3 gap-4 items-start">
+                    <div className="md:col-span-1">
+                      <img src={twoFASetup.qr} alt="2FA QR" className="border rounded w-48 h-48 object-contain bg-white" />
+                    </div>
+                    <div className="md:col-span-2">
+                      <div className="text-sm break-all mb-2"><span className="font-medium">Secret:</span> {twoFASetup.base32}</div>
+                      <label className="block text-sm font-medium mb-1">Authenticator 6 haneli kod</label>
+                      <input value={twoFACode} onChange={e=>setTwoFACode(e.target.value)} placeholder="123456" className="w-full max-w-xs px-3 py-2 border rounded-md dark:bg-secondary-800 dark:border-secondary-600" />
+                      <div className="mt-2 text-xs text-gray-500">Kod her 30 sn’de bir yenilenir.</div>
+                      <div className="mt-3 flex gap-2">
+                        <button type="button" onClick={handle2FAEnable} className="px-3 py-2 rounded-md bg-primary-600 text-white">Doğrula ve Etkinleştir</button>
+                        <button type="button" onClick={()=>{setTwoFASetup(null);setTwoFACode('');}} className="px-3 py-2 rounded-md border">İptal</button>
+                      </div>
+                    </div>
+                  </div>
+                )}
               </div>
             </form>
           </div>

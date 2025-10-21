@@ -48,6 +48,21 @@ api.interceptors.response.use(
   }
 );
 
+// CSRF: mutating isteklere token ekle (header yoksa çek)
+let cachedCsrf: string | null = null;
+api.interceptors.request.use(async (config) => {
+  const isMutating = ['post','put','patch','delete'].includes((config.method||'').toLowerCase());
+  if (isMutating) {
+    if (!cachedCsrf) {
+      try { const { data } = await authAPI.getCsrf(); cachedCsrf = data.token; } catch (_) {}
+    }
+    if (cachedCsrf) {
+      config.headers = { ...(config.headers||{}), 'X-CSRF-Token': cachedCsrf } as any;
+    }
+  }
+  return config;
+});
+
 // Auth API
 export const authAPI = {
   login: (data: LoginForm): Promise<AxiosResponse<AuthResponse>> =>
@@ -61,6 +76,8 @@ export const authAPI = {
   
   verifyToken: (): Promise<AxiosResponse<{ valid: boolean; user: User }>> =>
     api.get('/auth/verify-token'),
+  getCsrf: (): Promise<AxiosResponse<{ token: string }>> =>
+    api.get('/csrf-token'),
 };
 
 // User API
