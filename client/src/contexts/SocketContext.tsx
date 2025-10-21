@@ -37,7 +37,8 @@ export const SocketProvider: React.FC<SocketProviderProps> = ({ children }) => {
 
   useEffect(() => {
     if (isAuthenticated && token && user) {
-      const newSocket = io(process.env.REACT_APP_SOCKET_URL || 'http://localhost:5000', {
+      const socketBaseUrl = process.env.REACT_APP_SOCKET_URL || window.location.origin;
+      const newSocket = io(socketBaseUrl, {
         auth: {
           token: token
         }
@@ -149,6 +150,7 @@ export const SocketProvider: React.FC<SocketProviderProps> = ({ children }) => {
     </SocketContext.Provider>
   );
 };
+
 
 
 

@@ -13,7 +13,9 @@ import {
   PaginationResponse
 } from '../types';
 
-const API_BASE_URL = process.env.REACT_APP_API_URL || 'http://localhost:5000/api';
+// Use relative base URL by default so production goes through the same-origin Nginx proxy
+// Falls back to env override for local dev or special setups
+const API_BASE_URL = process.env.REACT_APP_API_URL || '/api';
 
 // Axios instance oluştur
 const api = axios.create({
