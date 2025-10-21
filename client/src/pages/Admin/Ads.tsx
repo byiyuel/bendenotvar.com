@@ -15,7 +15,7 @@ const Ads: React.FC = () => {
   }, []);
 
   const remove = async (id: string) => {
-    if (!confirm('İlanı silmek istediğinize emin misiniz?')) return;
+    if (!window.confirm('İlanı silmek istediğinize emin misiniz?')) return;
     await adminAPI.deleteAd(id);
     await load();
   };

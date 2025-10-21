@@ -29,7 +29,7 @@ const Categories: React.FC = () => {
   };
 
   const edit = (c: Category) => setForm({ id: c.id, name: c.name, description: c.description });
-  const remove = async (id: string) => { if (!confirm('Kategori silinsin mi?')) return; await adminAPI.deleteCategory(id); await load(); };
+  const remove = async (id: string) => { if (!window.confirm('Kategori silinsin mi?')) return; await adminAPI.deleteCategory(id); await load(); };
 
   if (loading) return <div className="p-6">Yükleniyor…</div>;
 

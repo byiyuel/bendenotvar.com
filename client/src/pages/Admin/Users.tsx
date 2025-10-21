@@ -21,7 +21,7 @@ const Users: React.FC = () => {
   };
 
   const remove = async (id: string) => {
-    if (!confirm('Kullanıcıyı silmek istediğinize emin misiniz?')) return;
+    if (!window.confirm('Kullanıcıyı silmek istediğinize emin misiniz?')) return;
     await adminAPI.deleteUser(id);
     await load();
   };
