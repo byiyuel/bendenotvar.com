@@ -103,7 +103,7 @@ export const SocketProvider: React.FC<SocketProviderProps> = ({ children }) => {
         setIsConnected(false);
       };
     }
-  }, [isAuthenticated, token, user]);
+  }, [isAuthenticated, user]);
 
   const sendMessage = (data: { conversationId: string; content: string }) => {
     if (socket && isConnected) {
