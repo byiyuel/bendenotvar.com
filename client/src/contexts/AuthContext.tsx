@@ -63,7 +63,8 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
       setToken('cookie');
       localStorage.setItem('user', JSON.stringify(newUser));
     } catch (error: any) {
-      throw new Error(error.response?.data?.message || 'Giriş yapılırken hata oluştu');
+      // Ham hatayı fırlat ki requires2FA/needsVerification bilgisi Login.tsx'te görülsün
+      throw error;
     }
   };
 
