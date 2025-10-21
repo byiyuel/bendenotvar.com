@@ -1,6 +1,7 @@
 import React, { Suspense, lazy } from 'react';
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import { AuthProvider } from './contexts/AuthContext';
+import { HelmetProvider } from 'react-helmet-async';
 import { SocketProvider } from './contexts/SocketContext';
 import { ToastProvider } from './contexts/ToastContext';
 import Layout from './components/Layout/Layout';
@@ -33,6 +34,7 @@ function App() {
       <AuthProvider>
         <SocketProvider>
           <ThemeProvider>
+            <HelmetProvider>
             <Router>
               <ToastContainer />
               <Suspense fallback={<div className="p-6 text-center"><span className="inline-block h-6 w-6 mr-2 align-middle animate-spin rounded-full border-2 border-primary-600 border-t-transparent"></span>Yükleniyor…</div>}>
@@ -104,6 +106,7 @@ function App() {
                 </Routes>
               </Suspense>
             </Router>
+            </HelmetProvider>
           </ThemeProvider>
         </SocketProvider>
       </AuthProvider>

@@ -57,10 +57,10 @@ const Header: React.FC = () => {
             {isAuthenticated && (
               <>
                 <Link
-                  to="/ads/create"
-                  className={navLinkClass('/ads/create')}
+                  to="/ads"
+                  className={navLinkClass('/ads')}
                 >
-                  İlan Ekle
+                  İlanlar
                 </Link>
                 <Link
                   to="/messages"
@@ -115,11 +115,11 @@ const Header: React.FC = () => {
               <div className="flex items-center space-x-4">
                 {/* Quick Actions */}
                 <Link
-                  to="/ads/create"
+                  to="/ads"
                   className="inline-flex items-center px-3 py-2 border border-transparent text-sm leading-4 font-medium rounded-md btn-ios-primary"
                 >
                   <PlusIcon className="h-4 w-4 mr-1" />
-                  İlan Ekle
+                  İlanlar
                 </Link>
 
                 {/* User Dropdown */}
@@ -276,11 +276,11 @@ const Header: React.FC = () => {
               {isAuthenticated ? (
                 <>
                   <Link
-                    to="/ads/create"
+                    to="/ads"
                     className="text-gray-700 hover:text-primary-600 block px-3 py-2 rounded-md text-base font-medium dark:text-gray-200 dark:hover:text-primary-400"
                     onClick={() => setIsMobileMenuOpen(false)}
                   >
-                    İlan Ekle
+                    İlanlar
                   </Link>
                   <Link
                     to="/messages"

@@ -1,3 +1,12 @@
+User-agent: *
+Disallow: /admin
+Disallow: /bnd-yonetim
+Disallow: /profile
+Disallow: /messages
+Disallow: /ads/create
+
+Sitemap: https://bendenotvar.com.tr/sitemap.xml
+
 # https://www.robotstxt.org/robotstxt.html
 User-agent: *
 Disallow:

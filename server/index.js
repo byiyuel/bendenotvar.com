@@ -19,6 +19,7 @@ const favoriteRoutes = require('./routes/favorites');
 const statsRoutes = require('./routes/stats');
 const adminRoutes = require('./routes/admin');
 const { authenticateToken, requireAdmin, requireAdmin2FA } = require('./middleware/auth');
+const { sitemapHandler } = require('./routes/sitemap');
 const { initializeSocket } = require('./socket/socketHandler');
 
 const app = express();
@@ -135,6 +136,7 @@ app.use('/api/messages', authenticateToken, messageRoutes);
 app.use('/api/favorites', authenticateToken, favoriteRoutes);
 app.use('/api/stats', statsRoutes);
 app.use('/api/admin', authenticateToken, requireAdmin, requireAdmin2FA, adminRoutes);
+app.get('/sitemap.xml', sitemapHandler);
 
 // Health check
 app.get('/api/health', (req, res) => {

@@ -1,4 +1,5 @@
-import React, { useState, useEffect, useCallback } from 'react';
+import React, { useState, useEffect, useCallback, useMemo } from 'react';
+import { Helmet } from 'react-helmet-async';
 import DOMPurify from 'dompurify';
 import { useParams, Link, useNavigate } from 'react-router-dom';
 import { adsAPI, favoritesAPI, messagesAPI } from '../../services/api';
@@ -225,6 +226,27 @@ const AdDetail: React.FC = () => {
 
   return (
     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+      <Helmet>
+        <title>{`${ad.title} | bendenotvar`}</title>
+        <meta name="description" content={(ad.description || '').replace(/<[^>]*>?/gm,'').slice(0,150)} />
+        <script type="application/ld+json">{JSON.stringify({
+          '@context':'https://schema.org',
+          '@type':'CreativeWork',
+          name: ad.title,
+          description: (ad.description || '').replace(/<[^>]*>?/gm,''),
+          datePublished: ad.createdAt,
+          author: { '@type':'Person', name: `${ad.user.firstName} ${ad.user.lastName}` }
+        })}</script>
+        <script type="application/ld+json">{JSON.stringify({
+          '@context':'https://schema.org',
+          '@type':'BreadcrumbList',
+          itemListElement:[
+            { '@type':'ListItem', position:1, name:'Ana Sayfa', item:'https://bendenotvar.com.tr/' },
+            { '@type':'ListItem', position:2, name:'İlanlar', item:'https://bendenotvar.com.tr/ads' },
+            { '@type':'ListItem', position:3, name:ad.title }
+          ]
+        })}</script>
+      </Helmet>
       {/* Breadcrumb */}
       <nav className="flex mb-8" aria-label="Breadcrumb">
         <ol className="flex items-center space-x-4">
