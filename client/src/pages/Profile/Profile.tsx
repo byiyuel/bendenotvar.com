@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef, useCallback } from 'react';
 import { useForm } from 'react-hook-form';
-import { userAPI } from '../../services/api';
+import api, { userAPI } from '../../services/api';
 import { User } from '../../types';
 import { useAuth } from '../../contexts/AuthContext';
 import { useToast } from '../../contexts/ToastContext';
@@ -125,10 +125,8 @@ const Profile: React.FC = () => {
 
   const handle2FASetup = async () => {
     try {
-      const { data } = await userAPI.getProfile(); // ensure auth
-      const res = await fetch('/api/auth/2fa/setup', { method: 'POST', credentials: 'include' });
-      const payload = await res.json();
-      if (!res.ok) throw new Error(payload.message || '2FA setup başarısız');
+      await userAPI.getProfile(); // ensure auth
+      const { data: payload } = await api.post('/auth/2fa/setup');
       // QR ve secret'ı sayfa içinde göstermek için state'e al
       setTwoFASetup({ base32: payload.base32, qr: payload.qr });
     } catch (e:any) {
@@ -143,9 +141,7 @@ const Profile: React.FC = () => {
       return;
     }
     try {
-      const res = await fetch('/api/auth/2fa/enable', { method: 'POST', headers: { 'Content-Type':'application/json' }, credentials: 'include', body: JSON.stringify({ token: code, base32: twoFASetup.base32 }) });
-      const payload = await res.json();
-      if (!res.ok) throw new Error(payload.message || '2FA etkinleştirilemedi');
+      const { data: payload } = await api.post('/auth/2fa/enable', { token: code, base32: twoFASetup.base32 });
       showSuccess('Başarılı', '2FA etkinleştirildi');
       setTwoFASetup(null);
       setTwoFACode('');
@@ -158,9 +154,7 @@ const Profile: React.FC = () => {
   const handle2FADisable = async () => {
     if (!window.confirm('2FA kapatılsın mı?')) return;
     try {
-      const res = await fetch('/api/auth/2fa/disable', { method: 'POST', credentials: 'include' });
-      const payload = await res.json();
-      if (!res.ok) throw new Error(payload.message || 'Kapatılamadı');
+      const { data: payload } = await api.post('/auth/2fa/disable');
       showSuccess('Tamam', '2FA devre dışı bırakıldı');
       setTwoFASetup(null);
       setTwoFACode('');
