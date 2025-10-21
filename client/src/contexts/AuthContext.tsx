@@ -33,24 +33,19 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
 
   useEffect(() => {
     const initAuth = async () => {
-      const storedToken = localStorage.getItem('token');
       const storedUser = localStorage.getItem('user');
-
-      if (storedToken && storedUser) {
+      if (storedUser) {
         try {
           // Token'ı doğrula
           const response = await authAPI.verifyToken();
           if (response.data.valid) {
-            setToken(storedToken);
             setUser(JSON.parse(storedUser));
           } else {
             // Geçersiz token, temizle
-            localStorage.removeItem('token');
             localStorage.removeItem('user');
           }
         } catch (error) {
           console.error('Token verification failed:', error);
-          localStorage.removeItem('token');
           localStorage.removeItem('user');
         }
       }
@@ -63,11 +58,9 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
   const login = async (data: LoginForm) => {
     try {
       const response = await authAPI.login(data);
-      const { token: newToken, user: newUser } = response.data;
-
-      setToken(newToken);
+      const { user: newUser } = response.data as any;
       setUser(newUser);
-      localStorage.setItem('token', newToken);
+      setToken('cookie');
       localStorage.setItem('user', JSON.stringify(newUser));
     } catch (error: any) {
       throw new Error(error.response?.data?.message || 'Giriş yapılırken hata oluştu');
@@ -85,7 +78,6 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
   const logout = () => {
     setUser(null);
     setToken(null);
-    localStorage.removeItem('token');
     localStorage.removeItem('user');
   };
 
@@ -96,7 +88,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     register,
     logout,
     loading,
-    isAuthenticated: !!user && !!token,
+    isAuthenticated: !!user,
   };
 
   return (

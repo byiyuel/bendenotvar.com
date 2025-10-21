@@ -5,6 +5,8 @@ const { PrismaClient } = require('@prisma/client');
 const { validationResult, body } = require('express-validator');
 const { sendVerificationEmail } = require('../utils/email');
 const { authenticateToken } = require('../middleware/auth');
+const speakeasy = require('speakeasy');
+const qrcode = require('qrcode');
 
 const router = express.Router();
 const prisma = new PrismaClient();
@@ -167,16 +169,36 @@ router.post('/login', loginValidation, async (req, res) => {
       });
     }
 
-    // Generate JWT token
-    const token = jwt.sign(
+    // Generate access/refresh tokens
+    const accessToken = jwt.sign(
       { userId: user.id },
       process.env.JWT_SECRET,
-      { expiresIn: process.env.JWT_EXPIRES_IN || '7d' }
+      { expiresIn: process.env.ACCESS_TOKEN_EXPIRES_IN || '15m' }
     );
+    const refreshToken = jwt.sign(
+      { userId: user.id, type: 'refresh' },
+      process.env.JWT_SECRET,
+      { expiresIn: process.env.REFRESH_TOKEN_EXPIRES_IN || '7d' }
+    );
+
+    const isProd = process.env.NODE_ENV === 'production';
+    res.cookie('access_token', accessToken, {
+      httpOnly: true,
+      secure: isProd,
+      sameSite: 'strict',
+      maxAge: 15 * 60 * 1000,
+      path: '/',
+    });
+    res.cookie('refresh_token', refreshToken, {
+      httpOnly: true,
+      secure: isProd,
+      sameSite: 'strict',
+      maxAge: 7 * 24 * 60 * 60 * 1000,
+      path: '/',
+    });
 
     res.json({
       message: 'Giriş başarılı',
-      token,
       user: {
         id: user.id,
         email: user.email,
@@ -188,6 +210,74 @@ router.post('/login', loginValidation, async (req, res) => {
         isVerified: user.isVerified
       }
     });
+// Refresh token endpoint
+router.post('/refresh', async (req, res) => {
+  try {
+    const token = req.cookies?.refresh_token;
+    if (!token) return res.status(401).json({ message: 'Refresh token required' });
+    const decoded = jwt.verify(token, process.env.JWT_SECRET);
+    if (decoded.type !== 'refresh') return res.status(400).json({ message: 'Invalid token type' });
+    const accessToken = jwt.sign({ userId: decoded.userId }, process.env.JWT_SECRET, { expiresIn: process.env.ACCESS_TOKEN_EXPIRES_IN || '15m' });
+    const isProd = process.env.NODE_ENV === 'production';
+    res.cookie('access_token', accessToken, {
+      httpOnly: true,
+      secure: isProd,
+      sameSite: 'strict',
+      maxAge: 15 * 60 * 1000,
+      path: '/',
+    });
+    res.json({ message: 'Refreshed' });
+  } catch (error) {
+    console.error('Refresh error:', error);
+    res.status(401).json({ message: 'Invalid or expired refresh token' });
+  }
+});
+
+// Logout - clear cookies
+router.post('/logout', (req, res) => {
+  const isProd = process.env.NODE_ENV === 'production';
+  res.clearCookie('access_token', { httpOnly: true, secure: isProd, sameSite: 'strict', path: '/' });
+  res.clearCookie('refresh_token', { httpOnly: true, secure: isProd, sameSite: 'strict', path: '/' });
+  res.json({ message: 'Çıkış yapıldı' });
+});
+
+// 2FA: setup (returns otpauth URL as QR)
+router.post('/2fa/setup', authenticateToken, async (req, res) => {
+  try {
+    const secret = speakeasy.generateSecret({ length: 20, name: 'bendenotvar' });
+    const otpauth = secret.otpauth_url;
+    const qr = await qrcode.toDataURL(otpauth);
+    // temp secret session yerine DB'de saklamak isterseniz ayrı alan gerekir; basitçe client verify ile tamamlayacağız
+    res.json({ base32: secret.base32, otpauth, qr });
+  } catch (e) {
+    console.error('2FA setup error:', e);
+    res.status(500).json({ message: '2FA kurulumu başarısız' });
+  }
+});
+
+// 2FA verify/enable
+router.post('/2fa/enable', authenticateToken, async (req, res) => {
+  try {
+    const { token, base32 } = req.body;
+    const verified = speakeasy.totp.verify({ secret: base32, encoding: 'base32', token, window: 1 });
+    if (!verified) return res.status(400).json({ message: 'Geçersiz doğrulama kodu' });
+    await prisma.user.update({ where: { id: req.user.id }, data: { totpSecret: base32, totpEnabled: true } });
+    res.json({ message: '2FA etkinleştirildi' });
+  } catch (e) {
+    console.error('2FA enable error:', e);
+    res.status(500).json({ message: '2FA etkinleştirilemedi' });
+  }
+});
+
+router.post('/2fa/disable', authenticateToken, async (req, res) => {
+  try {
+    await prisma.user.update({ where: { id: req.user.id }, data: { totpEnabled: false, totpSecret: null } });
+    res.json({ message: '2FA devre dışı bırakıldı' });
+  } catch (e) {
+    console.error('2FA disable error:', e);
+    res.status(500).json({ message: '2FA devre dışı bırakılamadı' });
+  }
+});
 
   } catch (error) {
     console.error('Login error:', error);

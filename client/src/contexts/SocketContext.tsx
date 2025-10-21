@@ -29,20 +29,16 @@ interface SocketProviderProps {
 }
 
 export const SocketProvider: React.FC<SocketProviderProps> = ({ children }) => {
-  const { user, token, isAuthenticated } = useAuth();
+  const { user, isAuthenticated } = useAuth();
   const [socket, setSocket] = useState<Socket | null>(null);
   const [isConnected, setIsConnected] = useState(false);
   const [conversations, setConversations] = useState<Conversation[]>([]);
   const [unreadCount, setUnreadCount] = useState(0);
 
   useEffect(() => {
-    if (isAuthenticated && token && user) {
+    if (isAuthenticated && user) {
       const socketBaseUrl = process.env.REACT_APP_SOCKET_URL || window.location.origin;
-      const newSocket = io(socketBaseUrl, {
-        auth: {
-          token: token
-        }
-      });
+      const newSocket = io(socketBaseUrl, { withCredentials: true });
 
       newSocket.on('connect', () => {
         console.log('Socket connected');

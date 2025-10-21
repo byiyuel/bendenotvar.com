@@ -43,8 +43,7 @@ const fileFilter = function (req, file, cb) {
     // Word
     'application/msword',
     'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
-    // Generic binary (bazı sistemlerde docx böyle gelir)
-    'application/octet-stream'
+    // NOT: application/octet-stream kaldırıldı (güvenlik)
   ];
 
   // İzin verilen uzantılar

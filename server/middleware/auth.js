@@ -5,7 +5,9 @@ const prisma = new PrismaClient();
 
 const authenticateToken = async (req, res, next) => {
   const authHeader = req.headers['authorization'];
-  const token = authHeader && authHeader.split(' ')[1]; // Bearer TOKEN
+  const bearer = authHeader && authHeader.split(' ')[1];
+  // Prefer HttpOnly cookie, fallback to Authorization header for legacy clients
+  const token = req.cookies?.access_token || bearer;
 
   if (!token) {
     return res.status(401).json({ message: 'Access token required' });

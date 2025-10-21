@@ -11,7 +11,12 @@ const initializeSocket = (io) => {
   // Socket.IO middleware - JWT doğrulama
   io.use(async (socket, next) => {
     try {
-      const token = socket.handshake.auth.token || socket.handshake.headers.authorization?.split(' ')[1];
+      // Prefer cookie from Socket.IO handshake; fall back to auth token
+      const cookieHeader = socket.handshake.headers.cookie || '';
+      const cookies = Object.fromEntries(cookieHeader.split(';').map(p=>p.trim()).filter(Boolean).map(p=>{
+        const idx=p.indexOf('='); return [decodeURIComponent(p.slice(0,idx)), decodeURIComponent(p.slice(idx+1))];
+      }));
+      const token = cookies['access_token'] || socket.handshake.auth.token || socket.handshake.headers.authorization?.split(' ')[1];
       
       if (!token) {
         return next(new Error('Authentication error: Token required'));
