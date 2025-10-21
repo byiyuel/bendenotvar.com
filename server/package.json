@@ -28,7 +28,8 @@
     "@prisma/client": "^5.7.1",
     "cookie-parser": "^1.4.6",
     "speakeasy": "^2.0.0",
-    "qrcode": "^1.5.3"
+    "qrcode": "^1.5.3",
+    "csurf": "^1.11.0"
   },
   "devDependencies": {
     "nodemon": "^3.0.2",

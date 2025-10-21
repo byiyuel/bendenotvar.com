@@ -3,7 +3,7 @@ const path = require('path');
 const cors = require('cors');
 const helmet = require('helmet');
 const cookieParser = require('cookie-parser');
-const csurf = require('csurf');
+const crypto = require('crypto');
 const morgan = require('morgan');
 const compression = require('compression');
 const rateLimit = require('express-rate-limit');
@@ -67,11 +67,37 @@ app.use(cors({
   optionsSuccessStatus: 200,
   preflightContinue: false
 }));
-// CSRF protection: double submit cookie pattern
+// CSRF protection (double submit cookie) without external lib
 const isProd = process.env.NODE_ENV === 'production';
-app.use(csurf({ cookie: { httpOnly: true, sameSite: 'strict', secure: isProd, path: '/' } }));
+const allowedOrigins = [
+  process.env.CLIENT_URL || "http://localhost:3000",
+  "http://127.0.0.1:3000",
+  "http://localhost:3000",
+  "http://192.168.137.1:3000",
+  "http://10.73.37.158:3000",
+  "https://bendenotvar.com.tr",
+  "https://www.bendenotvar.com.tr"
+];
+
 app.get('/api/csrf-token', (req, res) => {
-  res.json({ token: req.csrfToken() });
+  const token = crypto.randomBytes(16).toString('hex');
+  res.cookie('csrf_token', token, { httpOnly: false, sameSite: 'strict', secure: isProd, path: '/' });
+  res.json({ token });
+});
+
+app.use((req, res, next) => {
+  if (['POST','PUT','PATCH','DELETE'].includes(req.method)) {
+    const origin = req.headers.origin || '';
+    if (origin && !allowedOrigins.includes(origin)) {
+      return res.status(403).json({ message: 'Origin not allowed' });
+    }
+    const headerToken = req.headers['x-csrf-token'];
+    const cookieToken = req.cookies['csrf_token'];
+    if (!headerToken || !cookieToken || headerToken !== cookieToken) {
+      return res.status(403).json({ message: 'Invalid CSRF token' });
+    }
+  }
+  next();
 });
 // Handle preflight requests
 app.options('*', (req, res) => {
