@@ -11,7 +11,7 @@ echo "🚀 bendenotvar VDS Deploy Başlıyor..."
 cd /opt/bendenotvar/bendenotvar.com
 
 # Git'ten çek (opsiyonel)
-# git pull origin main
+git pull origin main
 
 # Eski container'ları durdur
 echo "🛑 Eski container'lar durduruluyor..."

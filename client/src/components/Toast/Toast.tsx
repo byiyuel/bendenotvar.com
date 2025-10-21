@@ -65,24 +65,24 @@ const Toast: React.FC<ToastProps> = ({
   };
 
   return (
-    <div className={`max-w-sm w-[92vw] sm:w-full border rounded-lg shadow-lg p-4 ${getBackgroundColor()} animate-slide-in-right break-words`}>
-      <div className="flex">
-        <div className="flex-shrink-0">
+    <div className={`max-w-sm w-[92vw] sm:w-full border rounded-lg shadow-lg p-4 ${getBackgroundColor()} animate-slide-in-right break-words backdrop-blur bg-opacity-95`}> 
+      <div className="flex items-start">
+        <div className="flex-shrink-0 mt-0.5">
           {getIcon()}
         </div>
         <div className="ml-3 w-0 flex-1 min-w-0">
-          <p className="text-sm font-medium text-gray-900 truncate">
+          <p className="text-sm font-semibold text-gray-900">
             {title}
           </p>
           {message && (
-            <p className="mt-1 text-sm text-gray-600 leading-5 whitespace-pre-wrap break-words">
+            <p className="mt-1 text-sm text-gray-700 leading-5 whitespace-pre-wrap break-words">
               {message}
             </p>
           )}
         </div>
         <div className="ml-4 flex-shrink-0 flex">
           <button
-            className="inline-flex text-gray-400 hover:text-gray-500 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
+            className="inline-flex text-gray-500 hover:text-gray-700 focus:outline-none"
             onClick={() => onClose(id)}
           >
             <span className="sr-only">Kapat</span>
