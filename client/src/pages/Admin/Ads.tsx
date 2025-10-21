@@ -12,7 +12,9 @@ const Ads: React.FC = () => {
   };
 
   useEffect(() => {
-    load().finally(() => setLoading(false));
+    load().catch((e)=>{
+      if (e.response?.status === 403) alert('Admin erişimi için 2FA zorunlu. Lütfen 2FA etkinleştirin.');
+    }).finally(() => setLoading(false));
   }, []);
 
   const remove = async (id: string) => {

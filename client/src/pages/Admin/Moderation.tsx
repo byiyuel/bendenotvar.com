@@ -12,6 +12,12 @@ const Moderation: React.FC = () => {
   };
 
   useEffect(() => { load().finally(() => setLoading(false)); }, []);
+  useEffect(() => {
+    load().catch((e)=>{
+      if (e.response?.status === 403) alert('Admin erişimi için 2FA zorunlu. Lütfen 2FA etkinleştirin.');
+    }).finally(() => setLoading(false));
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   const setStatus = async (id: string, status: 'ACTIVE'|'REJECTED') => {
     await adminAPI.updateAdStatus(id, status);
