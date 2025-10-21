@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { adminAPI } from '../../services/api';
+import AdminLayout from '../../components/Layout/AdminLayout';
 
 const Ads: React.FC = () => {
   const [ads, setAds] = useState<any[]>([]);
@@ -23,7 +24,7 @@ const Ads: React.FC = () => {
   if (loading) return <div className="p-6">Yükleniyor…</div>;
 
   return (
-    <div className="p-6">
+    <AdminLayout>
       <h1 className="text-2xl font-bold mb-4">İlanlar</h1>
       <div className="grid gap-4">
         {ads.map((ad) => (
@@ -36,7 +37,7 @@ const Ads: React.FC = () => {
           </div>
         ))}
       </div>
-    </div>
+    </AdminLayout>
   );
 };
 

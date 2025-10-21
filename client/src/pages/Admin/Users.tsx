@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { adminAPI } from '../../services/api';
 import { User } from '../../types';
+import AdminLayout from '../../components/Layout/AdminLayout';
 
 const Users: React.FC = () => {
   const [users, setUsers] = useState<Pick<User, 'id'|'email'|'firstName'|'lastName'|'role'|'isVerified'|'createdAt'>[]>([]);
@@ -29,7 +30,7 @@ const Users: React.FC = () => {
   if (loading) return <div className="p-6">Yükleniyor…</div>;
 
   return (
-    <div className="p-6">
+    <AdminLayout>
       <h1 className="text-2xl font-bold mb-4">Kullanıcılar</h1>
       <div className="overflow-x-auto border rounded-lg dark:border-secondary-700">
         <table className="min-w-full divide-y divide-gray-200 dark:divide-secondary-700">
@@ -60,7 +61,7 @@ const Users: React.FC = () => {
           </tbody>
         </table>
       </div>
-    </div>
+    </AdminLayout>
   );
 };
 

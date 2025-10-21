@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { adminAPI } from '../../services/api';
+import AdminLayout from '../../components/Layout/AdminLayout';
 
 interface Category { id: string; name: string; description?: string }
 
@@ -34,7 +35,8 @@ const Categories: React.FC = () => {
   if (loading) return <div className="p-6">Yükleniyor…</div>;
 
   return (
-    <div className="p-6 space-y-6">
+    <AdminLayout>
+      <div className="space-y-6">
       <h1 className="text-2xl font-bold">Kategoriler</h1>
 
       <form onSubmit={submit} className="flex gap-2 items-end">
@@ -66,7 +68,8 @@ const Categories: React.FC = () => {
           </div>
         ))}
       </div>
-    </div>
+      </div>
+    </AdminLayout>
   );
 };
 

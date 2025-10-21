@@ -194,6 +194,10 @@ export const statsAPI = {
 export const adminAPI = {
   getOverview: (): Promise<AxiosResponse<{ totalUsers: number; totalAds: number; totalMessages: number; totalFavorites: number }>> =>
     api.get('/admin/overview'),
+  getPendingAds: (): Promise<AxiosResponse<any[]>> =>
+    api.get('/admin/ads/pending'),
+  updateAdStatus: (id: string, status: 'PENDING'|'ACTIVE'|'REJECTED'|'INACTIVE'|'DELETED'): Promise<AxiosResponse<{ message: string }>> =>
+    api.patch(`/admin/ads/${id}/status`, { status }),
   getUsers: (): Promise<AxiosResponse<Array<Pick<User, 'id'|'email'|'firstName'|'lastName'|'role'|'isVerified'|'createdAt'>>>> =>
     api.get('/admin/users'),
   updateUserRole: (id: string, role: 'USER'|'ADMIN'): Promise<AxiosResponse<{ message: string }>> =>

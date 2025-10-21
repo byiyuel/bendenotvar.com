@@ -7,14 +7,17 @@ const prisma = new PrismaClient();
 // GET /api/admin/overview - basic platform metrics
 router.get('/overview', async (req, res) => {
   try {
-    const [totalUsers, totalAds, totalMessages, totalFavorites] = await Promise.all([
+    const [totalUsers, totalAds, totalMessages, totalFavorites, recentUsers, recentAds, pendingAdsCount] = await Promise.all([
       prisma.user.count(),
       prisma.ad.count(),
       prisma.message.count(),
       prisma.favorite.count(),
+      prisma.user.findMany({ orderBy: { createdAt: 'desc' }, take: 5, select: { id: true, firstName: true, lastName: true, email: true, createdAt: true } }),
+      prisma.ad.findMany({ orderBy: { createdAt: 'desc' }, take: 5, select: { id: true, title: true, createdAt: true } }),
+      prisma.ad.count({ where: { status: 'PENDING' } }).catch(() => 0),
     ]);
 
-    res.json({ totalUsers, totalAds, totalMessages, totalFavorites });
+    res.json({ totalUsers, totalAds, totalMessages, totalFavorites, recentUsers, recentAds, pendingAdsCount });
   } catch (error) {
     console.error('Admin overview error:', error);
     res.status(500).json({ message: 'Yönetim istatistikleri alınamadı' });
@@ -83,6 +86,31 @@ router.get('/ads', async (req, res) => {
   } catch (error) {
     console.error('Admin ads list error:', error);
     res.status(500).json({ message: 'İlanlar alınamadı' });
+  }
+});
+
+// Pending ads and status changes (moderation)
+router.get('/ads/pending', async (req, res) => {
+  try {
+    const ads = await prisma.ad.findMany({ where: { status: 'PENDING' }, orderBy: { createdAt: 'desc' }, include: { user: { select: { id: true, firstName: true, lastName: true } } } });
+    res.json(ads);
+  } catch (error) {
+    console.error('Admin pending ads error:', error);
+    res.status(500).json({ message: 'Onay bekleyen ilanlar alınamadı' });
+  }
+});
+
+router.patch('/ads/:id/status', async (req, res) => {
+  try {
+    const { id } = req.params;
+    const { status } = req.body; // PENDING | ACTIVE | REJECTED | INACTIVE | DELETED
+    const allowed = ['PENDING','ACTIVE','REJECTED','INACTIVE','DELETED'];
+    if (!allowed.includes(status)) return res.status(400).json({ message: 'Geçersiz durum' });
+    const ad = await prisma.ad.update({ where: { id }, data: { status } });
+    res.json({ message: 'Durum güncellendi', ad });
+  } catch (error) {
+    console.error('Admin update ad status error:', error);
+    res.status(500).json({ message: 'Durum güncellenemedi' });
   }
 });
 
