@@ -77,6 +77,7 @@ router.get('/profile', ensureAuth, async (req, res) => {
         profileImage: true,
         isVerified: true,
         role: true,
+        totpEnabled: true,
         createdAt: true,
         updatedAt: true
       }
@@ -130,6 +131,7 @@ router.put('/profile', ensureAuth, upload.single('profileImage'), validateProfil
         profileImage: true,
         isVerified: true,
         role: true,
+        totpEnabled: true,
         createdAt: true,
         updatedAt: true
       }

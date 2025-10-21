@@ -121,6 +121,53 @@ const Profile: React.FC = () => {
     });
   };
 
+  const handle2FASetup = async () => {
+    try {
+      const { data } = await userAPI.getProfile(); // ensure auth
+      const res = await fetch('/api/auth/2fa/setup', { method: 'POST', credentials: 'include' });
+      const payload = await res.json();
+      if (!res.ok) throw new Error(payload.message || '2FA setup başarısız');
+      // Basit modal yerine yeni sekmede QR gösterelim
+      const w = window.open('', '_blank');
+      if (w) {
+        w.document.write(`<div style="font-family:system-ui;padding:16px"><h2>2FA Kurulumu</h2><p>Authenticator uygulamasına bu QR kodu okutun:</p><img src="${payload.qr}" alt="QR" /><p><small>Secret: ${payload.base32}</small></p><p>Kurulumdan sonra profil sayfasına dönüp etkinleştirin.</p></div>`);
+      }
+    } catch (e:any) {
+      showError('Hata', e.message || '2FA kurulumu başlatılamadı');
+    }
+  };
+
+  const handle2FAEnable = async () => {
+    const code = prompt('Authenticator uygulamasındaki 6 haneli kodu girin');
+    if (!code) return;
+    try {
+      // Not: base32 değerini client saklamıyoruz; kullanıcı QR sayfasından kopyalayabilir.
+      // Basit akış için tekrar setup çağrısı ile base32 alınabilir; üretim için güvenli akış gerekir.
+      const setupRes = await fetch('/api/auth/2fa/setup', { method: 'POST', credentials: 'include' });
+      const setup = await setupRes.json();
+      const res = await fetch('/api/auth/2fa/enable', { method: 'POST', headers: { 'Content-Type':'application/json' }, credentials: 'include', body: JSON.stringify({ token: code, base32: setup.base32 }) });
+      const payload = await res.json();
+      if (!res.ok) throw new Error(payload.message || '2FA etkinleştirilemedi');
+      showSuccess('Başarılı', '2FA etkinleştirildi');
+      fetchProfile();
+    } catch (e:any) {
+      showError('Hata', e.message || '2FA etkinleştirilemedi');
+    }
+  };
+
+  const handle2FADisable = async () => {
+    if (!window.confirm('2FA kapatılsın mı?')) return;
+    try {
+      const res = await fetch('/api/auth/2fa/disable', { method: 'POST', credentials: 'include' });
+      const payload = await res.json();
+      if (!res.ok) throw new Error(payload.message || 'Kapatılamadı');
+      showSuccess('Tamam', '2FA devre dışı bırakıldı');
+      fetchProfile();
+    } catch (e:any) {
+      showError('Hata', e.message || '2FA devre dışı bırakılamadı');
+    }
+  };
+
   if (loading) {
     return (
       <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
@@ -359,6 +406,23 @@ const Profile: React.FC = () => {
                     placeholder="Kendinizi kısaca tanıtın..."
                     className="w-full px-3 py-2 border border-gray-300 dark:border-secondary-600 rounded-md shadow-sm focus:outline-none focus:ring-primary-500 focus:border-primary-500 disabled:bg-gray-50 disabled:text-gray-500 dark:bg-secondary-700 dark:text-gray-100 dark:disabled:bg-secondary-800 dark:disabled:text-gray-500 break-words"
                   />
+                </div>
+              </div>
+              {/* 2FA Section */}
+              <div className="mt-8 p-4 border rounded-md bg-gray-50 dark:bg-secondary-700/30 dark:border-secondary-600">
+                <div className="flex items-center justify-between">
+                  <div>
+                    <div className="font-medium">2 Adımlı Doğrulama (TOTP)</div>
+                    <div className="text-sm text-gray-600 dark:text-gray-300">Hesabınızı ek bir doğrulama adımıyla koruyun.</div>
+                  </div>
+                  {user.totpEnabled ? (
+                    <button type="button" onClick={handle2FADisable} className="px-3 py-2 rounded-md border text-red-600 border-red-300 hover:bg-red-50 dark:border-red-800 dark:hover:bg-red-900/30">2FA Kapat</button>
+                  ) : (
+                    <div className="flex gap-2">
+                      <button type="button" onClick={handle2FASetup} className="px-3 py-2 rounded-md border">QR Oluştur</button>
+                      <button type="button" onClick={handle2FAEnable} className="px-3 py-2 rounded-md bg-primary-600 text-white">2FA Etkinleştir</button>
+                    </div>
+                  )}
                 </div>
               </div>
             </form>

@@ -3,6 +3,7 @@ import { Link } from 'react-router-dom';
 import { useForm } from 'react-hook-form';
 import { useToast } from '../../contexts/ToastContext';
 import { RegisterForm } from '../../types';
+import { adminAPI } from '../../services/api';
 import api from '../../services/api';
 
 const Register: React.FC = () => {
@@ -14,6 +15,7 @@ const Register: React.FC = () => {
   const [resendingEmail, setResendingEmail] = useState(false);
 
   const { register, handleSubmit, formState: { errors }, watch } = useForm<RegisterForm>();
+  const [want2FA, setWant2FA] = useState(false);
   const password = watch('password');
 
   const onSubmit = async (data: RegisterForm) => {
@@ -236,6 +238,16 @@ const Register: React.FC = () => {
                 <p className="mt-1 text-sm text-red-600">{errors.confirmPassword.message}</p>
               )}
             </div>
+          </div>
+
+          <div className="border rounded-md p-3 bg-gray-50">
+            <label className="flex items-start gap-2">
+              <input type="checkbox" checked={want2FA} onChange={e => setWant2FA(e.target.checked)} />
+              <span className="text-sm text-gray-700">Güvenlik için 2 Adımlı Doğrulamayı (TOTP) kurmak istiyorum</span>
+            </label>
+            {want2FA && (
+              <p className="text-xs text-gray-500 mt-2">Kayıt sonrası profilinizden QR kod ile etkinleştirebilirsiniz.</p>
+            )}
           </div>
 
           <div>

@@ -10,6 +10,7 @@ export interface User {
   profileImage?: string;
   isVerified: boolean;
   role: 'USER' | 'ADMIN';
+  totpEnabled?: boolean;
   createdAt: string;
   adsCount?: number;
   favoritesCount?: number;
