@@ -16,6 +16,8 @@ const Login: React.FC = () => {
   const [needsVerification, setNeedsVerification] = useState(false);
   const [userEmail, setUserEmail] = useState('');
   const [resendingEmail, setResendingEmail] = useState(false);
+  const [requires2FA, setRequires2FA] = useState(false);
+  const [totpToken, setTotpToken] = useState('');
 
   const { register, handleSubmit, formState: { errors } } = useForm<LoginForm>();
 
@@ -25,7 +27,7 @@ const Login: React.FC = () => {
     setNeedsVerification(false);
 
     try {
-      await login(data);
+      await login({ ...data, ...(requires2FA && totpToken ? { totpToken } : {}) } as any);
       const from = (location.state as any)?.from?.pathname || '/';
       navigate(from, { replace: true });
     } catch (err: any) {
@@ -33,6 +35,9 @@ const Login: React.FC = () => {
         setNeedsVerification(true);
         setUserEmail(err.response.data.email);
         setError(err.response.data.message);
+      } else if (err.response?.data?.requires2FA) {
+        setRequires2FA(true);
+        setError(err.response?.data?.message || '2FA kodu gerekli');
       } else {
         setError(err.response?.data?.message || err.message);
       }
@@ -129,6 +134,22 @@ const Login: React.FC = () => {
               )}
             </div>
           </div>
+
+            {requires2FA && (
+              <div>
+                <label className="block text-sm font-medium text-gray-700">2FA Kodu</label>
+                <input
+                  value={totpToken}
+                  onChange={(e)=>setTotpToken(e.target.value)}
+                  inputMode="numeric"
+                  pattern="\d{6}"
+                  maxLength={6}
+                  className="mt-1 appearance-none relative block w-full px-3 py-2 border border-gray-300 placeholder-gray-500 text-gray-900 rounded-md focus:outline-none focus:ring-primary-500 focus:border-primary-500 focus:z-10 sm:text-sm"
+                  placeholder="123456"
+                />
+                <p className="mt-1 text-xs text-gray-500">Authenticator uygulamasındaki 6 haneli kod.</p>
+              </div>
+            )}
 
           <div className="flex items-center justify-between">
             <div className="text-sm">

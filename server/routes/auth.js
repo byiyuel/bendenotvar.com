@@ -139,7 +139,7 @@ router.post('/login', loginValidation, async (req, res) => {
       });
     }
 
-    const { email, password } = req.body;
+    const { email, password, totpToken } = req.body;
 
     // Check if user exists
     const user = await prisma.user.findUnique({
@@ -167,6 +167,17 @@ router.post('/login', loginValidation, async (req, res) => {
         needsVerification: true,
         email: user.email
       });
+    }
+
+    // Enforce 2FA if enabled
+    if (user.totpEnabled) {
+      if (!totpToken) {
+        return res.status(400).json({ message: '2FA kodu gerekli', requires2FA: true });
+      }
+      const isTotpValid = speakeasy.totp.verify({ secret: user.totpSecret, encoding: 'base32', token: totpToken, window: 1 });
+      if (!isTotpValid) {
+        return res.status(400).json({ message: 'Geçersiz veya süresi dolmuş 2FA kodu', requires2FA: true });
+      }
     }
 
     // Generate access/refresh tokens
